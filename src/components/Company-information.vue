@@ -1,0 +1,381 @@
+<template>
+<div>
+  <div class="top1">
+    <!-- 修改公司信息 -->
+    <!-- v-if="imageUrl" -->
+    <!-- :src="imageUrl" -->
+    <img title="点击修改公司信息" src="../assets/images/logo.png" class="avatar logo" @click="dialogFormVisible = true">
+    <!--<el-dialog title="修改公司信息" :visible.sync="dialogFormVisible" :append-to-body='true' top='10px' width="550px">-->
+      <!--<el-form>-->
+        <!--<el-form-item label="公司邮箱" :label-width="formLabelWidth" >-->
+          <!--<el-input class="increaseInput" v-model="newCompanyId"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="公司名称" :label-width="formLabelWidth" >-->
+          <!--<el-input class="increaseInput" v-model="newCompanyName"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="申请人姓名" :label-width="formLabelWidth">-->
+          <!--<el-input class="increaseInput" v-model="newApplicantName"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="组织规模" :label-width="formLabelWidth">-->
+          <!--<el-input class="increaseInput" v-model="newOrganizationSize"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="主分类" :label-width="formLabelWidth">-->
+          <!--<el-input class="increaseInput" v-model="newMainCategory"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="副分类" :label-width="formLabelWidth">-->
+          <!--<el-input class="increaseInput" v-model="newViceCategory"></el-input>-->
+        <!--</el-form-item>-->
+        <!--<el-form-item label="密码" :label-width="formLabelWidth">-->
+          <!--<el-input class="increaseInput" v-model="newPassword"></el-input>-->
+        <!--</el-form-item>-->
+      <!--</el-form>-->
+      <!--<div slot="footer" class="dialog-footer">-->
+        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
+        <!--<el-button type="primary" @click="editCompanyInfo()">保存</el-button>-->
+      <!--</div>-->
+    <!--</el-dialog>-->
+    <!-- 修改公司简介 -->
+    <div class="companyInfo">
+      <a title="点击修改公司简介"  @click="dialogVisible = true">
+        <span>公司简介{{ this.companyOutline }}</span>
+      </a>
+      <el-dialog
+        title="修改公司简介"
+        :visible.sync="dialogVisible"
+        width="40%">
+        <el-input
+          class="editCompany"
+          type="textarea"
+          :rows="6"
+          v-model="companyOutline">
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="putCompanyOutline ()">确 定</el-button>
+        </span>
+      </el-dialog>
+    </div>
+  </div>
+  <div class="mainInfo">
+    <!-- 公司成员 -->
+    <div class="companyMember">
+      公司成员
+      <div class="companyMember-child">
+        <i class="el-icon-tickets"></i>
+        <span ref='member'>{{ memberCounting }}</span>/1000人
+      </div>
+    </div>
+    <!-- 公司项目数量 -->
+    <div class="projectCount">
+      项目数量
+      <div class="projectBox">
+        <span>
+          <canvas class="progeressBar" ref="progeressBar" width="100" height="100"></canvas>
+        </span>
+        <span>
+          <div id='projectC'>
+            <span ref='project'>{{ projectCounting }}</span>个
+          </div>
+          <p class="allProject">项目总数：100个</p>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+<style>
+*{
+  margin:0;
+  padding:0;
+}
+.top1 {
+  background-color: #fafafa;
+  height:200px;
+}
+.logo{
+  height:110px;
+  width:110px;
+  border-radius: 5px;
+  margin-left:40px;
+  margin-top:40px;
+  cursor: pointer;
+}
+.companyInfo{
+  display: inline-block;
+  margin-left: 60px;
+  line-height: 40px;
+  margin-top: 80px;
+}
+.companyInfo p{
+    font-size:20px;
+    color:black;
+}
+.companyInfo a span{
+  color:#9a9a9e;
+  background-color:#fafafa;
+  font-size:15px;
+  cursor: pointer;
+}
+.el-dialog__body {
+    padding: 0px 20px;
+    color: #606266;
+    font-size: 14px;
+}
+.increaseInput {
+  width: 290px;
+}
+.companyMember{
+  background-color:white;
+  display: inline-block;
+  width:260px;
+  height:170px;
+  margin-left:70px;
+  margin-top:40px;
+  border:1px solid white;
+  border-radius:5px;
+  box-shadow:0px -2px 5px 0px #e6e6e6,-2px 0px 5px 0px #e6e6e6,
+  2px 0px 5px 0px #e6e6e6,0px 2px 5px 0px #e6e6e6;
+}
+.projectCount{
+  background-color:white;
+  display: inline-block;
+  width:260px;
+  height:170px;
+  margin-left:40px;
+  border:1px solid white;
+  border-radius:5px;
+  box-shadow:0px -2px 5px 0px #e6e6e6,-2px 0px 5px 0px #e6e6e6,
+  2px 0px 5px 0px #e6e6e6,0px 2px 5px 0px #e6e6e6;
+  position: absolute;
+  top: 240px;
+}
+.mainInfo div{
+    font-size: 15px;
+    padding-top:10px;
+    padding-left:18px;
+    color:#6f6f73;
+}
+.el-icon-tickets{
+  margin-top: 15px;
+  margin-left: -20px;
+  font-size: 100px;
+  color: #e5e6e8;
+}
+.companyMember-child span{
+  font-size: 42px;
+  color: #84aff9;
+}
+#projectC{
+  display: inline-block;
+}
+#projectC span{
+  padding-left: 30px;
+  font-size: 42px;
+  color: #f0b489;
+}
+.allProject{
+  padding-left: 90px;
+}
+.progeressBar{
+  margin-top: 5px;
+  margin-left: -20px;
+}
+</style>
+<script>
+  const COMPANYID = '1204695257@qq.com'
+  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+export default {
+  data () {
+    return {
+      imageUrl: '../assets/images/logo.png',
+      memberCount: '',
+      memberCounting: '',
+      projectCount: '',
+      projectCounting: '',
+      barNumber: '',
+      dialogVisible: false,
+      dialogFormVisible: false,
+      formLabelWidth: '140px',
+      newCompanyId: '',  //修改的公司邮箱（下列new开头的同理）
+      newCompanyName: '',
+      newApplicantName: '',
+      newOrganizationSize: '',
+      newMainCategory: '',
+      newViceCategory: '',
+      newPassword: '',
+      companyOutline: '',
+      companyName: '',
+      companyEmail: '',
+      dashArray: Math.PI * 100
+    }
+  },
+  created () {
+    // 得到公司成员总数
+    this.$axios.get(PREFIX+'member/count.do',{
+      params: {
+        companyId: COMPANYID
+      }
+    })
+    .then( (response) => {
+      this.memberCount = response.data.object;
+    })
+    .catch( (error) => {
+      console.log(error);
+    });
+    this.$axios.get(PREFIX+'index/index.do',{
+      params: {
+        companyId: COMPANYID
+      }
+    })
+      .then((response) =>{
+        this.companyOutline = response.data.object.outline;
+      });
+    this.$axios.get(PREFIX+'company/company.do',{
+      params: {
+        email: COMPANYID
+      }
+    })
+      .then((response) =>{
+        this.companyName = response.data.object.name;
+      });
+    // 得到公司项目总数
+    this.$axios.get(PREFIX+'project/count.do',{
+      params: {
+        companyId: COMPANYID
+      }
+    })
+    .then( (response) => {
+      this.projectCount = response.data.object;
+      this.barNumber = response.data.object;
+      this.progeressBar(this.barNumber);
+    })
+    .catch( (error) => {
+      console.log (error);
+    });
+    // 得到公司logo
+     this.$axios.get('',{
+      params: this.companyId
+    })
+    .then( (response) => {
+      this.imageUrl = response.data.imageUrl;
+    });
+  },
+  mounted () {
+    this.countIncreaseMember();
+    this.countIncreaseProject();
+  },
+  methods: {
+    // 上传头像成功
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw);
+    },
+    // 判断上传头像的格式和大小
+    beforeAvatarUpload(file) {
+      const isJPG = file.type === 'image/jpeg';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!');
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!');
+      }
+      return isJPG && isLt2M;
+    },
+    // 公司成员数字动态增加
+    countIncreaseMember () {
+      let num = 0;
+      let t =  setInterval(() => {
+      num++;
+      this.memberCounting = num;
+      if(num == this.memberCount){
+        clearInterval(t);
+      }
+      }, 100);
+    },
+    // 公司项目数字动态增加
+    countIncreaseProject (){
+      let num = 0;
+      let t =  setInterval(() => {
+      num++;
+      this.projectCounting = num;
+      if(num == this.projectCount){
+        clearInterval(t);
+      }
+      }, 100);
+    },
+    // 公司项目动态圆环
+    progeressBar (val) {
+      let ctx=this.$refs.progeressBar.getContext('2d');
+      let mW = 100;
+      let mH = 100;
+      let lineWidth = 10;
+      let r = mW / 2; //中间位置
+      let cR = 40; //圆半径
+      let startAngle = -(1 / 2 * Math.PI); //开始角度
+      let endAngle = (val*3.6-90)*Math.PI/180; //结束角度
+      let xAngle = 1 * (Math.PI / 180); //偏移角度量
+      let fontSize = 50; //字号大小
+      let tmpAngle = startAngle; //临时角度变量
+      let rander = function(){
+        if(tmpAngle >= endAngle){
+          return;
+        }else if(tmpAngle + xAngle > endAngle){
+          tmpAngle = endAngle;
+        }else{
+          tmpAngle += xAngle;
+        }
+        ctx.clearRect(0, 0, mW, mH);
+        //画底部的圈
+        ctx.beginPath();
+        ctx.lineWidth=lineWidth;
+        ctx.strokeStyle='#e3e4e5';
+        ctx.arc(r, r, cR, -90*Math.PI/180,(100*3.6-90)*Math.PI/180);
+        ctx.stroke();
+        //画上面变动的圈
+        ctx.beginPath();
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = '#1c86d1';
+        ctx.arc(r, r, cR,startAngle, tmpAngle);
+        ctx.stroke();
+        //写字
+        ctx.fillStyle = '#1d89d5';
+        ctx.font= fontSize/2 + 'px Microsoft Yahei';
+        ctx.textAlign='center';
+        ctx.fillText( Math.round((tmpAngle -  startAngle) / (endAngle - startAngle) * val) + '%', r, r + fontSize/4);
+        requestAnimationFrame(rander);
+      };
+      rander();
+    },
+    // 修改公司简介
+    putCompanyOutline () {
+      this.$axios.post(PREFIX+'index/outline.do',{
+          companyId: COMPANYID,
+          outline: this.companyOutline
+      })
+      .then( () => {
+        dialogVisible = false;
+      })
+      .catch( (error) => {
+        console.log(error);
+      });
+    }
+    // // 修改公司信息
+    // editCompanyInfo () {
+    //   this.$axios.put(PREFIX+'index/index.do',{
+    //     params: {
+    //       companyId: COMPANYID,
+    //       outline: this.
+    //     }
+    //   })
+    //   .then( (response) => {
+    //     this.dialogFormVisible = false;
+    //     console.log(response.message);
+    //   })
+    //   .catch( (error) => {
+    //     console.log(error);
+    //   })
+    // }
+  },
+  global
+}
+</script>
