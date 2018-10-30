@@ -8,50 +8,86 @@ import EditorWhereabouts from '@/components/editorMemberWhereabouts'
 import BookManagement from '@/components/BookManagement'
 import ProjectManagement from '@/components/ProjectManagement'
 import RentManagement from '@/components/RentManagement'
+import Home from '@/components/Home'
+import Login from '@/components/Login'
+import Register from '@/components/Register'
+import Fristregister from '@/components/Fristregister'
+import Secondregister from '@/components/Secondregister'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/CompanyInfo',
-      name: 'CompanyInfo',
-      component: CompanyInfo
+      path: '/',
+      name: 'Login',
+      component: Login
     },
     {
-      path: '/MemberMangement',
-      name: 'MemberMangement',
-      component: MemberMangement
+      path: '/register',
+      name: 'Register',
+      component: Register,
+      children: [
+        {
+          path: '/',
+          name: 'Fristregister',
+          component: Fristregister
+        }
+      ]
     },
     {
-      path: '/MemberWhereabouts',
-      name: 'MemberWhereabouts',
-      component: MemberWhereabouts
+      path: '/register/Secondregister',
+      name: 'Secondregister',
+      component: Secondregister
     },
     {
-      path: '/MemberMangement/Editor',
-      name: 'Editor',
-      component: Editor
-    },
-    {
-      path: '/MemberWhereabouts/EditorWhereabouts',
-      name: 'EditorWhereabouts',
-      component: EditorWhereabouts
-    },
-    {
-      path: '/ProjectManagement',
-      name: 'ProjectManagement',
-      component: ProjectManagement
-    },
-    {
-      path: '/BookManagement',
-      name: 'BookManagement',
-      component: BookManagement
-    },
-    {
-      path: '/RentManagement',
-      name: 'RentManagement',
-      component: RentManagement
+      path: '/Home',
+      name: 'Home',
+      component: Home,
+      redirect: '/CompanyInfo', 
+      children: [
+        {
+          path: '/CompanyInfo',
+          name: 'CompanyInfo',
+          component: CompanyInfo
+        },
+        {
+          path: '/MemberMangement',
+          name: 'MemberMangement',
+          component: MemberMangement
+        },
+        {
+          path: '/MemberWhereabouts',
+          name: 'MemberWhereabouts',
+          component: MemberWhereabouts
+        },
+        {
+          path: '/MemberMangement/Editor',
+          name: 'Editor',
+          component: Editor
+        },
+        {
+          path: '/MemberWhereabouts/EditorWhereabouts',
+          name: 'EditorWhereabouts',
+          component: EditorWhereabouts
+        },
+        {
+          path: '/ProjectManagement',
+          name: 'ProjectManagement',
+          component: ProjectManagement
+        },
+        {
+          path: '/BookManagement',
+          name: 'BookManagement',
+          component: BookManagement
+        },
+        {
+          path: '/RentManagement',
+          name: 'RentManagement',
+          component: RentManagement
+        }
+      ]
     }
+
   ]
 })
