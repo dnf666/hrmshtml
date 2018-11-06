@@ -9,9 +9,6 @@
         添加成员
         <el-dialog title="添加成员" :visible.sync="dialogFormVisible" :append-to-body='true' top='10px' width="550px">
           <el-form :model="tableData" class="memberData">
-            <el-form-item label="公司名称" :label-width="formLabelWidth">
-              <el-input class="increaseInput" v-model="newCompanyId" placeholder="公司名称"></el-input>
-            </el-form-item>
             <el-form-item label="邮箱*" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="newEmail" placeholder="登录邮箱"></el-input>
             </el-form-item>
@@ -104,8 +101,6 @@
       <!-- 成员状态 -->
       <span id='state'>
         ({{memberCount}} 成员)
-        <!--<el-checkbox v-model="checked" class='activeState' label="在职">在职</el-checkbox>-->
-        <!--<el-checkbox class='workState' label="工作">工作</el-checkbox>-->
       </span>
       <!-- 根据输入过滤信息 -->
       <div style="margin-top: 10px;">
@@ -356,7 +351,7 @@
   #state {
     position: relative;
     float: right;
-    margin-right: 20px;
+    margin-right: 15px;
   }
 
   .activeState {
@@ -407,7 +402,7 @@
   import XLSX from 'xlsx'
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const PREFIX = '/';
   export default {
     data() {
       return {

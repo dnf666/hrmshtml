@@ -113,8 +113,55 @@
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
+          width="50">
+          <template slot-scope="scope">
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                <i class="editor el-icon-caret-bottom"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>
+                  <router-link :to="{ path:'/MemberMangement/Editor',query: { memberOriginalInfo: scope.row} }">
+                    编辑成员
+                  </router-link>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="deleteMember(scope.row.num)">
+                  删除成员
+                  </span>
+                </el-dropdown-item>
+                <el-dropdown-item>离职确认</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+        <el-table-column
           type="selection"
           width="80">
+        </el-table-column>
+        <el-table-column
+          width="50">
+          <template slot-scope="scope">
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                <i class="editor el-icon-caret-bottom"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>
+                  <router-link :to="{ path:'/MemberMangement/Editor',query: { memberOriginalInfo: scope.row} }">
+                    编辑项目
+                  </router-link>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="deleteRow(scope.row.num)">
+                  删除项目
+                  </span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
         </el-table-column>
         <el-table-column
           prop="projectId"
@@ -140,17 +187,17 @@
           width="250"
           :show-overflow-tooltip="true">
         </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="editFormVisible = true">编辑</el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click.native.prevent="deleteRow(scope.$index, tableData)">删除</el-button>
-          </template>
-        </el-table-column>
+        <!--<el-table-column label="操作">-->
+          <!--<template slot-scope="scope">-->
+            <!--<el-button-->
+              <!--size="mini"-->
+              <!--@click="editFormVisible = true">编辑</el-button>-->
+            <!--<el-button-->
+              <!--size="mini"-->
+              <!--type="danger"-->
+              <!--@click.native.prevent="deleteRow(scope.$index, tableData)">删除</el-button>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
       </el-table>
       <el-pagination
         class="pagination"
@@ -301,7 +348,7 @@
 <script>
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const PREFIX = '/';
 export default {
   data () {
     return {
@@ -412,7 +459,7 @@ export default {
         type: 'warning'
       }).then(()=>{
         var deleteData = new Object();
-        deleteData.bookId = this.tableData[index].bookId;
+        deleteData.projectId = this.tableData[index].projectId;
         console.log(this.tableData[index].bookId);
         this.$axios.delete(PREFIX+'project/project.do',{params:deleteData});
       }).then(() => {

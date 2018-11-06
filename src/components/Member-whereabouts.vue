@@ -405,7 +405,7 @@
 
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const PREFIX = '/';
   export default {
     data() {
       return {

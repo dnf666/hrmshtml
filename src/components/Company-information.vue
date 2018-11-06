@@ -1,43 +1,11 @@
 <template>
 <div>
+  <router-view/>
+  <div class="top">主页</div>
   <div class="top1">
-    <!-- 修改公司信息 -->
-    <!-- v-if="imageUrl" -->
-    <!-- :src="imageUrl" -->
-    <img title="点击修改公司信息" src="../assets/images/logo.png" class="avatar logo" @click="dialogFormVisible = true">
-    <!--<el-dialog title="修改公司信息" :visible.sync="dialogFormVisible" :append-to-body='true' top='10px' width="550px">-->
-      <!--<el-form>-->
-        <!--<el-form-item label="公司邮箱" :label-width="formLabelWidth" >-->
-          <!--<el-input class="increaseInput" v-model="newCompanyId"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="公司名称" :label-width="formLabelWidth" >-->
-          <!--<el-input class="increaseInput" v-model="newCompanyName"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="申请人姓名" :label-width="formLabelWidth">-->
-          <!--<el-input class="increaseInput" v-model="newApplicantName"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="组织规模" :label-width="formLabelWidth">-->
-          <!--<el-input class="increaseInput" v-model="newOrganizationSize"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="主分类" :label-width="formLabelWidth">-->
-          <!--<el-input class="increaseInput" v-model="newMainCategory"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="副分类" :label-width="formLabelWidth">-->
-          <!--<el-input class="increaseInput" v-model="newViceCategory"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="密码" :label-width="formLabelWidth">-->
-          <!--<el-input class="increaseInput" v-model="newPassword"></el-input>-->
-        <!--</el-form-item>-->
-      <!--</el-form>-->
-      <!--<div slot="footer" class="dialog-footer">-->
-        <!--<el-button @click="dialogFormVisible = false">取 消</el-button>-->
-        <!--<el-button type="primary" @click="editCompanyInfo()">保存</el-button>-->
-      <!--</div>-->
-    <!--</el-dialog>-->
-    <!-- 修改公司简介 -->
     <div class="companyInfo">
       <a title="点击修改公司简介"  @click="dialogVisible = true">
-        <span>公司简介{{ this.companyOutline }}</span>
+        <span>公司简介:</span><span>{{ this.companyOutline }}</span>
       </a>
       <el-dialog
         title="修改公司简介"
@@ -89,8 +57,9 @@
   padding:0;
 }
 .top1 {
-  background-color: #fafafa;
-  height:200px;
+  font-size: 15px;
+  line-height: 70px;
+  padding-left: 30px;
 }
 .logo{
   height:110px;
@@ -183,7 +152,7 @@
 </style>
 <script>
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const PREFIX = '/';
 export default {
   data () {
     return {

@@ -14,13 +14,11 @@
           <div class="content">
             <el-upload
               class="avatar-uploader"
-              action="http://rap2api.taobao.org/app/mock/7602/hrms//company/updatePhoto.do"
+              action="http://localhost:8089/hrms/index/photo.do?companyId=1204695257@qq.com"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
-              <img title="点击修改头像" src="./assets/images/logo.png" class="avatar logo">
-              <!-- v-if="imageUrl" -->
-              <!-- :src="imageUrl" -->
+              <img v-bind:src="imageUrl" title="点击修改头像" class="avatar logo">
             </el-upload>
             <p>{{ this.companyName }}</p>
           </div>
@@ -165,7 +163,7 @@
 
 <script>
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const PREFIX = '/';
   const DEFAULT_PHOTO = './assets/images/logo.png';
   export default {
   data () {
@@ -194,11 +192,11 @@
       }
     })
     .then( (response) => {
-      var photoPath = response.data.photoPath;
+      var photoPath = response.data.object.photoPath;
       if(photoPath == null){
         this.imageUrl = DEFAULT_PHOTO;
       }else {
-        this.imageUrl = photoPath;
+        this.imageUrl =PREFIX+photoPath;
       }
     });
       this.$axios.get(PREFIX+'company/company.do',{
@@ -215,9 +213,9 @@
       this.imageUrl = URL.createObjectURL(file.raw);
     },
     // 判断上传头像的格式和大小
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+    beforeAvatarUpload(photo) {
+      const isJPG = photo.type === 'image/jpeg';
+      const isLt2M = photo.size / 1024 / 1024 < 2;
       if (!isJPG) {
         this.$message.error('上传头像图片只能是 JPG 格式!');
       }
