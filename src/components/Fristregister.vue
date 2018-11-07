@@ -42,6 +42,9 @@
 </template>
 
 <script>
+  const COMPANYID = '1204695257@qq.com'
+  const PREFIX = 'http://localhost:8089/';
+  const DEFAULT_PHOTO = './../assets/images/logo.png';
     //验证是否能下一步
     let isnext = (that) => {
       for(var i = 0; i< 6; i ++) {
@@ -57,10 +60,11 @@
       }
 
     };
-/* eslint-disable */
 
 export default {
   name: 'Fristregister',
+  //todo 选项的值要改，但是后面是用接口传值的
+
   data() {
     return {
       company: '',
@@ -71,8 +75,8 @@ export default {
       companySizeTips: '',
       options: [
         {
-        value: 'zhinan',
-        label: '指南',
+        value: '互联网',
+        label: '互联网',
         children: [
           {
             value: 'shejiyuanze',
@@ -100,20 +104,17 @@ export default {
           }]
         }],
         companyType: [{
-          value: '选项1',
-          label: '黄金糕'
+          value: '小于50',
+          label: '小于50'
         }, {
-          value: '选项2',
-          label: '双皮奶'
+          value: '51-100',
+          label: '51-100'
         }, {
-          value: '选项3',
-          label: '蚵仔煎'
+          value: '100-1000',
+          label: '100-1000'
         }, {
-          value: '选项4',
-          label: '龙须面'
-        }, {
-          value: '选项5',
-          label: '北京烤鸭'
+          value: '1000+',
+          label: '1000+'
         }],
         value: '',
         cpTips: '不能为空',
@@ -122,6 +123,8 @@ export default {
         name: '',
         email: '',
         password: '',
+        mainCategory:'',
+       viceCategory:'',
         gre: false,
         nameTips: '',
         emailTips: '',
@@ -156,6 +159,8 @@ export default {
       this.isnext[1] = false;
        isnext(this);
       console.log(value);
+      this.mainCategory = value[0];
+      this.viceCategory = value[1];
     },
     //选择公司规模
     changeCompanySize(e) {
@@ -243,9 +248,25 @@ export default {
   },
   //下一步
   next(e){
-    this.$router.push({
-      path: '/register/Secondregister'
+    this.$axios.post(PREFIX+"/hrms/company/register.do",
+      {
+        email:this.email,
+        password:this.password,
+        organizationSize:this.companySize,
+        name:this.company,
+        mainCategory:this.mainCategory,
+        viceCategory:this.viceCategory,
+        applicantName:this.name
+      }).then((response)=>{
+      if (response.data.status == 1){
+        this.$router.push({
+          path: '/register/Secondregister'
+        })
+      } else{
+        alert(response.data.message);
+      }
     })
+
   }
 }
 }

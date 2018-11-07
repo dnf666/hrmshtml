@@ -27,6 +27,8 @@
 </template>
 
 <script>
+  const COMPANYID = '1204695257@qq.com'
+  const PREFIX = 'http://localhost:8089';
 export default {
   name: "Login",
   data() {
@@ -40,7 +42,7 @@ export default {
       // this.$router.push({ path: '/home' })
       //提交请求
       console.log(this.email + '11' + this.password)
-      this.$axios.post('http://113.251.170.22:8089/hrms/company/login.do', {
+      this.$axios.post(PREFIX+'/hrms/company/login.do', {
         email: this.email,
         password: this.password
       })
