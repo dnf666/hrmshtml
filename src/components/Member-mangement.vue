@@ -402,7 +402,7 @@
   import XLSX from 'xlsx'
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
+  const PREFIX = 'http://localhost:8089/hrms';
   export default {
     data() {
       return {
@@ -455,7 +455,7 @@
     //获取全部成员信息(success)
     created: function () {
       // 得到成员总数
-      this.$axios.get(PREFIX + 'member/count.do', {
+      this.$axios.get(PREFIX + '/member/count.do', {
         //todo 以后改为动态的
         params: {
           companyId: COMPANYID
@@ -472,7 +472,7 @@
       var params = new URLSearchParams();
       params.append('page', this.currentPage);
       params.append('size', this.pagesize);
-      this.$axios.post(PREFIX + 'member/filter.do?' + params.toString(), {
+      this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
         companyId: COMPANYID
       })
         .then((response) => {
@@ -490,7 +490,7 @@
         var params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + 'member/filter.do?' + params.toString(), {
+        this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
           companyId: this.newCompanyId
         })
           .then((response) => {
@@ -526,11 +526,9 @@
       },
       //删除单个成员信息()
       deleteMember(num) {
-        let nums = [];
-        nums[0] = num;
         // todo 违反了rest原则。 但是现在又传不过去
-        this.$axios.post(PREFIX + 'member/delMember.do?companyId='+COMPANYID, {
-            nums: '123,123'
+        this.$axios.post(PREFIX + '/member/delMember.do?companyId='+COMPANYID, {
+            num:num
         })
           .then((response) => {
             console.log('删除单个成员成功');
@@ -554,11 +552,12 @@
           type: 'warning',
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
-          this.$axios.post(PREFIX + 'member/delMember.do?companyId='+COMPANYID, {
-              nums: '123'
+          console.log(this.multipleSelection);
+          this.$axios.post(PREFIX + '/member/delMember.do?companyId='+COMPANYID, {
+              num: this.multipleSelection.toString()
           })
             .then((response) => {
-              console.log('删除多个成员成功');
+              console.log(response);
               for (let i = 0; i < this.multipleSelection.length; i++) {
                 let val = this.multipleSelection;
                 val.forEach((val, index) => {
@@ -590,8 +589,8 @@
         }
         ;
         //提交请求
-        this.$axios.post(PREFIX + 'member/member.do', {
-          companyId: this.newCompanyId,
+        this.$axios.post(PREFIX + '/member/member.do', {
+          companyId: COMPANYID,
           num: this.newNum,
           name: this.newName,
           sex: this.newSex,
@@ -603,23 +602,25 @@
 
         })
           .then((response) => {
-            if (this.radio == '0') {
-              this.sex = '男';
-            } else {
-              this.sex = '女';
+            if (response.data.status == 0) {
+              if (this.radio == '0') {
+                this.sex = '男';
+              } else {
+                this.sex = '女';
+              }
+              this.tableData.unshift({
+                companyId: this.newCompanyId,
+                num: this.newNum,
+                name: this.newName,
+                email: this.newEmail,
+                sex: this.newSex,
+                profession: this.newProfession,
+                department: this.newDepartment,
+                grade: this.newGrade,
+                phoneNumber: this.newPhoneNumber
+              });
+              alert('添加成功');
             }
-            this.tableData.unshift({
-              companyId: this.newCompanyId,
-              num: this.newNum,
-              name: this.newName,
-              email: this.newEmail,
-              sex: this.newSex,
-              profession: this.newProfession,
-              department: this.newDepartment,
-              grade: this.newGrade,
-              phoneNumber: this.newPhoneNumber
-            });
-            alert('添加成功');
           })
           .catch((error) => {
             alert(error);
@@ -646,7 +647,7 @@
         } else {
           this.sex = '女';
         }
-        this.$axios.post(PREFIX + 'member/filter.do?' + params.toString()
+        this.$axios.post(PREFIX + '/member/filter.do?' + params.toString()
           , {
             companyId: this.filterCompanyId,
             num: this.filterNum,

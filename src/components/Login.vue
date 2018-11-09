@@ -27,28 +27,30 @@
 </template>
 
 <script>
-  const COMPANYID = '1204695257@qq.com'
   const PREFIX = 'http://localhost:8089';
 export default {
-  name: "Login",
+  name: 'Login',
   data() {
     return {
-      email: "122",
-      password: "hzy212510"
+      email: '',
+      password: ''
     };
   },
   methods: {
     onSubmit() {
-      // this.$router.push({ path: '/home' })
       //提交请求
-      console.log(this.email + '11' + this.password)
       this.$axios.post(PREFIX+'/hrms/company/login.do', {
         email: this.email,
         password: this.password
       })
-      .then(function (response) {
-        console.log(response);
-        this.$router.push({ path: '/home' })
+      .then((response)=> {
+        let that = this;
+        if (response.data.status == 0) {
+          that.$router.push({path: '/home'})
+        }
+        else {
+          alert(response.data.message);
+        }
       })
       .catch(function (error) {
         console.log(error);
@@ -59,7 +61,6 @@ export default {
 
     },
     changePassword(e) {
-      console.log(e);
     },
     // //验证密码
     // ckPwd(str) {

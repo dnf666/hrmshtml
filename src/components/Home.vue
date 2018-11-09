@@ -14,7 +14,7 @@
           <div class="content">
             <el-upload
               class="avatar-uploader"
-              action="http://rap2api.taobao.org/app/mock/7602/hrms//company/updatePhoto.do"
+              action="http://localhost:8089/hrms/index/photo.do"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
@@ -164,8 +164,8 @@
 </style>
 
 <script>
-  const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://10.239.46.173:8089/hrms/';
+  const COMPANYID = '1204695257@qq.com';
+  const PREFIX = 'http://localhost:8089/hrms';
   const DEFAULT_PHOTO = './../assets/images/logo.png';
   export default {
   data () {
@@ -188,7 +188,7 @@
   },
   // 得到公司头像
   created () {
-    this.$axios.get(PREFIX+'index/index.do',{
+    this.$axios.get(PREFIX+'/index/index.do',{
       params: {
         companyId: COMPANYID
       }
@@ -201,7 +201,7 @@
         this.imageUrl = photoPath;
       }
     });
-      this.$axios.get(PREFIX+'company/company.do',{
+      this.$axios.get(PREFIX+'/company/company.do',{
         params: {
           email: COMPANYID
         }
@@ -211,7 +211,13 @@
   },
   methods: {
     // 上传头像成功
+    sendPhoto(file){
+      this.$axios.post(PREFIX+'/index/photo.do',file).then((response)=>{
+        console.log(response);
+      })
+    },
     handleAvatarSuccess(res, file) {
+      console.log(response);
       this.imageUrl = URL.createObjectURL(file.raw);
     },
     // 判断上传头像的格式和大小

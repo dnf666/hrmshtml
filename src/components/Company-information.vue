@@ -152,7 +152,7 @@
 </style>
 <script>
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
+  const PREFIX = 'http://localhost:8089/hrms';
 export default {
   data () {
     return {
@@ -180,7 +180,7 @@ export default {
   },
   created () {
     // 得到公司成员总数
-    this.$axios.get(PREFIX+'member/count.do',{
+    this.$axios.get(PREFIX+'/member/count.do',{
       params: {
         companyId: COMPANYID
       }
@@ -191,7 +191,7 @@ export default {
     .catch( (error) => {
       console.log(error);
     });
-    this.$axios.get(PREFIX+'index/index.do',{
+    this.$axios.get(PREFIX+'/index/index.do',{
       params: {
         companyId: COMPANYID
       }
@@ -199,7 +199,7 @@ export default {
       .then((response) =>{
         this.companyOutline = response.data.object.outline;
       });
-    this.$axios.get(PREFIX+'company/company.do',{
+    this.$axios.get(PREFIX+'/company/company.do',{
       params: {
         email: COMPANYID
       }
@@ -208,7 +208,7 @@ export default {
         this.companyName = response.data.object.name;
       });
     // 得到公司项目总数
-    this.$axios.get(PREFIX+'project/count.do',{
+    this.$axios.get(PREFIX+'/project/count.do',{
       params: {
         companyId: COMPANYID
       }
@@ -317,33 +317,20 @@ export default {
     },
     // 修改公司简介
     putCompanyOutline () {
-      this.$axios.post(PREFIX+'index/outline.do',{
+      this.$axios.post(PREFIX+'/index/outline.do',{
           companyId: COMPANYID,
           outline: this.companyOutline
       })
-      .then( () => {
+      .then((response) => {
         dialogVisible = false;
+        if (response.data.status != 0) {
+          alert(response.data.message);
+        }
       })
       .catch( (error) => {
         console.log(error);
       });
     }
-    // // 修改公司信息
-    // editCompanyInfo () {
-    //   this.$axios.put(PREFIX+'index/index.do',{
-    //     params: {
-    //       companyId: COMPANYID,
-    //       outline: this.
-    //     }
-    //   })
-    //   .then( (response) => {
-    //     this.dialogFormVisible = false;
-    //     console.log(response.message);
-    //   })
-    //   .catch( (error) => {
-    //     console.log(error);
-    //   })
-    // }
   },
   global
 }

@@ -73,13 +73,13 @@
 <script>
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
+  const PREFIX = 'http://localhost:8089/hrms/';
 export default {
   data() {
     return {
       activeName: 'first',
       formLabelWidth: '70px',
-      radio: '0',
+      radio: this.$route.query.memberOriginalInfo.radio,
       companyId: this.$route.query.memberOriginalInfo.companyId,
       num: this.$route.query.memberOriginalInfo.num,
       name: this.$route.query.memberOriginalInfo.name,
@@ -93,10 +93,10 @@ export default {
   },
   created: function() {
     if(this.$route.query.memberOriginalInfo.sex == '女'){
-      this.radio = '1';
+      this.radio = '0';
     }
     else{
-      this.radio = '0';
+      this.radio = '1';
     }
   },
   methods: {
@@ -107,7 +107,7 @@ export default {
         num: this.num,
         name: this.name,
         email: this.email,
-        sex: this.radio,
+        sex: this.sex,
         profession: this.profession,
         department: this.department,
         grade: this.grade,
@@ -116,19 +116,19 @@ export default {
       let obj = JSON.stringify(form);
       console.log(obj);
       //提交请求
-      this.$axios.put(PREFIX+'/member/member.do?companyId='+COMPANYID,{
+      this.$axios.put(PREFIX+'member/member.do?companyId='+COMPANYID,{
           companyId: this.companyId,
           num: this.num,
           name: this.name,
           email: this.email,
-          sex: this.radio,
+          sex: this.sex,
           profession: this.profession,
           department: this.department,
           grade: this.grade,
           phoneNumber: this.phoneNumber
       })
       .then( (response) => {
-        console.log('编辑成员成功');
+        console.log(response);
         this.$router.push({ name: 'MemberMangement', params: { changedInfo:obj } });
       })
       .catch( (error) => {

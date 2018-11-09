@@ -405,7 +405,7 @@
 
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
+  const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {
       return {
@@ -471,7 +471,7 @@
       var params = new URLSearchParams();
       params.append('page', this.currentPage);
       params.append('size', this.pagesize);
-      this.$axios.post(PREFIX + 'work/filter.do?' + params.toString(), {
+      this.$axios.post(PREFIX + '/work/filter.do?' + params.toString(), {
         companyId: COMPANYID
       })
         .then((response) => {
@@ -489,7 +489,7 @@
         var params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + 'work/filter.do?' + params.toString(), {
+        this.$axios.post(PREFIX + '/work/filter.do?' + params.toString(), {
           companyId: COMPANYID
         })
           .then((response) => {
@@ -527,7 +527,7 @@
       deleteWorkMember(num) {
         let nums = [];
         nums[0] = num;
-        this.$axios.delete(PREFIX + 'work/work.do', {
+        this.$axios.delete(PREFIX + '/work/work.do', {
           nums: nums
         })
           .then((response) => {
@@ -588,7 +588,7 @@
         ;
 
         //提交请求
-        this.$axios.post(PREFIX + 'work/work.do', {
+        this.$axios.post(PREFIX + '/work/work.do', {
           companyId: COMPANYID,
           num: this.newNum,
           name: this.newName,
@@ -635,7 +635,7 @@
         var params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + 'work/filter.do?' + params.toString(), {
+        this.$axios.post(PREFIX + '/hrms/work/filter.do?' + params.toString(), {
           companyId: COMPANYID,
           num: this.filterWorkNum,
           name: this.filterWorkName,

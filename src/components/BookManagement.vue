@@ -340,7 +340,7 @@
 
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
+  const PREFIX = 'http://localhost:8089';
   export default {
     data() {
       return {
@@ -400,7 +400,7 @@
       var params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
-      this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), {
+      this.$axios.post(PREFIX + '/hrms/book/filter.do?' + params.toString(), {
         companyId: COMPANYID
       })
         .then(function (res) {
@@ -419,7 +419,7 @@
         var data = [];
         let _this = this;
 
-        this.$axios.post(PREFIX + 'book/book.do', {
+        this.$axios.post(PREFIX + 'hrms/book/book.do', {
           companyId: COMPANYID,
           bookName: this.addname,
           category: this.addcategory,
@@ -473,7 +473,7 @@
         }).then(() => {
           var deleteData = new Object();
           deleteData.bookId = this.tableData[index].bookId;
-          this.$axios.delete(PREFIX+COMPANYID+'/'+bookId+'.do');
+          this.$axios.delete(PREFIX+'/hrms/'+COMPANYID+'/'+bookId+'.do');
         }).then((res) => {
           rows.splice(index, 1);
           this.$message({
@@ -498,7 +498,7 @@
         editData.category = this.category;
         editData.quantity = this.quantity;
         editData.version = this.version;
-        this.$axios.put(PREFIX+'book/book.do', editData)
+        this.$axios.put(PREFIX+'/hrms/book/book.do', editData)
           .then(function (res) {
             for (let i = 0; i < res.data.object.length; i++) {
               var obj = {};

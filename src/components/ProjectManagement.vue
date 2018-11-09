@@ -348,8 +348,8 @@
 <script>
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
-export default {
+  const PREFIX = 'http://localhost:8089/hrms';
+  export default {
   data () {
     return {
       activeNames: ['1'],
@@ -391,7 +391,7 @@ export default {
     var params = new URLSearchParams();
     params.append('currentPage', this.currentPage);
     params.append('size', this.pagesize);
-    this.$axios.post(PREFIX+'project/option.do?'+params.toString(), {
+    this.$axios.post(PREFIX+'/project/option.do?'+params.toString(), {
       companyId:COMPANYID
     }).then(function (res) {
       for (let i = 0; i < res.data.object.data.length; i++) {
@@ -431,7 +431,7 @@ export default {
       var data = [];
       let _this = this;
       var editData = new Object;
-      editData.companyId = COMPANYID
+      editData.companyId = COMPANYID;
       editData.projectId = this.projectId;
       editData.projectName = this.projectName;
       editData.projectUrl = this.projectUrl;

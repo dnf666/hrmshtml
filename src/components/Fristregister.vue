@@ -43,7 +43,7 @@
 
 <script>
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://localhost:8089/';
+  const PREFIX = 'http://localhost:8089/hrms';
   const DEFAULT_PHOTO = './../assets/images/logo.png';
     //验证是否能下一步
     let isnext = (that) => {
@@ -166,7 +166,6 @@ export default {
     changeCompanySize(e) {
       this.isnext[2] = false;
       isnext(this);
-      console.log(e);
     },
     open() {
       this.$alert('这是一段内容', '标题名称', {
@@ -248,7 +247,7 @@ export default {
   },
   //下一步
   next(e){
-    this.$axios.post(PREFIX+"/hrms/company/register.do",
+    this.$axios.post(PREFIX+"/company/register.do",
       {
         email:this.email,
         password:this.password,
@@ -258,7 +257,7 @@ export default {
         viceCategory:this.viceCategory,
         applicantName:this.name
       }).then((response)=>{
-      if (response.data.status == 1){
+      if (response.data.status == 0){
         this.$router.push({
           path: '/register/Secondregister'
         })

@@ -76,8 +76,8 @@
 <script>
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = '/';
-export default {
+  const PREFIX = 'http://localhost:8089/';
+  export default {
    data() {
       return {
         activeName: 'first',
@@ -107,7 +107,7 @@ export default {
     //编辑成员信息(success)
     putEditorMemberInfo() {
       //提交请求
-      this.$axios.put(PREFIX+'work/work.do',{
+      this.$axios.put(PREFIX+'hrms/work/work.do',{
           companyId: this.companyId,
           num: this.num,
           name: this.name,
