@@ -626,7 +626,7 @@
       },
       //根据条件查找成员信息(success)
       getFilterWorkMemberInfo() {
-        let data = []
+        let data = [];
         if (this.radio == '0') {
           this.sex = '男';
         } else {

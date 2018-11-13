@@ -13,6 +13,7 @@ import Login from '@/components/Login'
 import Register from '@/components/Register'
 import Fristregister from '@/components/Fristregister'
 import Secondregister from '@/components/Secondregister'
+import EditorProject from '@/components/editorProject'
 
 Vue.use(Router)
 
@@ -75,6 +76,11 @@ export default new Router({
           path: '/ProjectManagement',
           name: 'ProjectManagement',
           component: ProjectManagement
+        },
+        {
+          path: '/ProjectManagement/Editor',
+          name: 'EnditorProject',
+          component: EditorProject
         },
         {
           path: '/BookManagement',

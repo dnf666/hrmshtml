@@ -531,7 +531,7 @@
             num:num
         })
           .then((response) => {
-            console.log('删除单个成员成功');
+            console.log(response.data.message);
             for (let i = 0; i < this.tableData.length; i++) {
               this.tableData.forEach((v, i) => {
                 if (v.num === num) {

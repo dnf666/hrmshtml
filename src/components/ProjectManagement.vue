@@ -8,14 +8,14 @@
         添加项目
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
           <el-form :model="form">
-            <el-form-item label="项目名称" :label-width="formLabelWidth" v-model="addProjectName">
-              <el-input class="increaseInput" placeholder="正确填写项目名"></el-input>
+            <el-form-item label="项目名称" :label-width="formLabelWidth" >
+              <el-input class="increaseInput" placeholder="正确填写项目名" v-model="addProjectName"></el-input>
             </el-form-item>
-            <el-form-item label="项目地址" :label-width="formLabelWidth" v-model="addProjectUrl">
-              <el-input class="increaseInput" placeholder=""></el-input>
+            <el-form-item label="项目地址" :label-width="formLabelWidth" >
+              <el-input class="increaseInput" placeholder="" v-model="addProjectUrl"></el-input>
             </el-form-item>
-            <el-form-item label="上线时间" :label-width="formLabelWidth" v-model="addOnlineTime">
-              <el-input class="increaseInput"></el-input>
+            <el-form-item label="上线时间" :label-width="formLabelWidth">
+              <el-input class="increaseInput" v-model="addOnlineTime"></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -81,7 +81,7 @@
       @click.prevent='removeSelection()'
       :disabled="isDisabled"
       >
-        删除选中成员
+        删除选中项目
       </el-button>
       <el-button
         class="filterDown"
@@ -121,41 +121,13 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item>
-                  <router-link :to="{ path:'/MemberMangement/Editor',query: { memberOriginalInfo: scope.row} }">
-                    编辑成员
-                  </router-link>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <span
-                    @click="deleteMember(scope.row.num)">
-                  删除成员
-                  </span>
-                </el-dropdown-item>
-                <el-dropdown-item>离职确认</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-table-column>
-        <el-table-column
-          type="selection"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          width="50">
-          <template slot-scope="scope">
-            <el-dropdown>
-              <span class="el-dropdown-link">
-                <i class="editor el-icon-caret-bottom"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>
-                  <router-link :to="{ path:'/MemberMangement/Editor',query: { memberOriginalInfo: scope.row} }">
+                  <router-link :to="{ path:'/ProjectManagement/Editor',query: { projectOriginalInfo: scope.row} }">
                     编辑项目
                   </router-link>
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <span
-                    @click="deleteRow(scope.row.num)">
+                    @click="deleteRow(scope.row.projectId)">
                   删除项目
                   </span>
                 </el-dropdown-item>
@@ -187,17 +159,6 @@
           width="250"
           :show-overflow-tooltip="true">
         </el-table-column>
-        <!--<el-table-column label="操作">-->
-          <!--<template slot-scope="scope">-->
-            <!--<el-button-->
-              <!--size="mini"-->
-              <!--@click="editFormVisible = true">编辑</el-button>-->
-            <!--<el-button-->
-              <!--size="mini"-->
-              <!--type="danger"-->
-              <!--@click.native.prevent="deleteRow(scope.$index, tableData)">删除</el-button>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
       </el-table>
       <el-pagination
         class="pagination"
@@ -212,10 +173,7 @@
       </el-pagination>
 
       <el-dialog title="编辑项目" :visible.sync="editFormVisible" :append-to-body='true' top='100px' width="550px" center>
-        <el-form :model="editForm">
-          <el-form-item label="项目编号" :label-width="formLabelWidth" >
-            <el-input class="increaseInput" placeholder="为该图书更改编号" v-model="projectId"></el-input>
-          </el-form-item>
+        <el-form>
           <el-form-item label="项目名称" :label-width="formLabelWidth">
             <el-input class="increaseInput" placeholder="为该项目更改名称" v-model="projectName"></el-input>
           </el-form-item>
@@ -347,8 +305,8 @@
 </style>
 <script>
 
-  const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://localhost:8089/hrms';
+  const COMPANYID = '1204695257@qq.com';
+  const PREFIX = 'http://localhost:8089/hrms/';
   export default {
   data () {
     return {
@@ -357,7 +315,13 @@
       show3: false,
       currentPage: 1,
       pagesize:10,
-      tableData: [],
+      tableData:[{
+      companyId: '',
+      projectId: '',
+      projectUrl: '',
+      projectName: '',
+      onlineTime: '',
+    }],
       value: '',
       dialogFormVisible: false,
       dialogVisible: false,
@@ -382,7 +346,10 @@
       projectId: '',
       projectName: '',
       projectUrl: '',
-      onlineTime: ''
+      onlineTime: '',
+      isDisabled: false,
+      fileList:''
+
     }
   },
   created: function () {
@@ -411,19 +378,16 @@
   methods: {
     addDataSave: function() {
       this.dialogFormVisible = false;
-      var data = [];
-      let _this = this;
-      var addData = new Object;
-      addData.companyId = this.addCompanyId;
-      addData.projectId = this.addProjectId;
-      addData.projectName = this.addProjectName;
-      addData.projectUrl = this.addProjectUrl;
-      addData.onlineTime = this.addOnlineTime;
-      this.$axios.post(PREFIX+'project/project.do',addData)
-      .then(function (res) {
-        console.log(res.data.msg);
+      this.$axios.post(PREFIX+'project/project.do',{
+        companyId : COMPANYID,
+      projectName :this.addProjectName,
+      projectUrl : this.addProjectUrl,
+      onlineTime : this.addOnlineTime
+      })
+      .then((res)=> {
+        //todo 从后端查询
       }).catch(function (error) {
-
+        alert(error);
       })
     },
     editDataSave() {
@@ -452,27 +416,40 @@
 
       })
     },
-    deleteRow(index, rows) {
+    deleteRow(index) {
+      console.log(index);
+      let data = index;
       this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(()=>{
-        var deleteData = new Object();
-        deleteData.projectId = this.tableData[index].projectId;
-        console.log(this.tableData[index].bookId);
-        this.$axios.delete(PREFIX+'project/project.do',{params:deleteData});
-      }).then(() => {
-        rows.splice(index, 1);
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        });
+        this.$axios.post(PREFIX + '/project/delProject.do', {
+          companyId:COMPANYID,
+          projectId:data
+        }).then((response) => {
+          console.log(response);
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.tableData.forEach((v, i) => {
+              if (v.projectId === index) {
+                this.tableData.splice(i, 1);
+              }
+            })
+          }
+          console.log(response);
+          console.log(response.data);
+          if (response.data.code == 1) {
+            this.$message({
+              type: 'info',
+              message: '删除成功!'
+            });
+          }else{
+            this.$message({
+              type: 'info',
+              message: '删除失败!'
+            });
+          }
+        })
       })
     },
     handleSizeChange: function (size) {
