@@ -9,13 +9,13 @@
       </el-breadcrumb>
     </div>
     <div id="editorTitle">编辑项目</div>
-    <el-tabs v-model="activeName" class="tabsEditor" type="card">
+    <el-tabs v-model="activeName" class="tabsEditor" type="card">d
       <el-tab-pane label="基本信息" name="first">
         <el-form :model="form">
           <el-form-item label="公司ID*" :label-width="formLabelWidth">
             <el-input class="increaseInput" disabled="disabled" v-model="companyId"></el-input>
           </el-form-item>
-          <el-form-item label="项目编号*" :label-width="formLabelWidth">
+          <el-form-item label="编号*" :label-width="formLabelWidth">
             <el-input class="increaseInput" disabled="disabled" v-model="projectId"></el-input>
           </el-form-item>
           <el-form-item label="项目名称" :label-width="formLabelWidth">
@@ -69,7 +69,7 @@
       return {
         activeName: 'first',
         formLabelWidth: '70px',
-        companyId: this.$route.query.projectOriginalInfo.companyId,
+        companyId: COMPANYID,
         projectId: this.$route.query.projectOriginalInfo.projectId,
         projectName: this.$route.query.projectOriginalInfo.projectName,
         projectUrl: this.$route.query.projectOriginalInfo.projectUrl,
@@ -81,9 +81,17 @@
     methods: {
       //编辑成员信息(success)
       putEditorProjectInfo() {
-        //提交请求
-        this.$axios.put(PREFIX+'project/project.do?companyId='+COMPANYID,{
+        let form = {
           companyId: this.companyId,
+          projectId: this.projectId,
+          projectName: this.projectName,
+          projectUrl: this.projectUrl,
+          onlineTime: this.onlineTime
+        };
+        let obj = JSON.stringify(form);
+        //提交请求
+        this.$axios.put(PREFIX+'project/project.do',{
+          companyId:this.companyId,
           projectId: this.projectId,
           projectName: this.projectName,
           projectUrl: this.projectUrl,
@@ -91,7 +99,7 @@
         })
           .then( (response) => {
             console.log(response);
-            this.$router.push({ name: 'MemberMangement', params: { changedInfo:obj } });
+            this.$router.push({ name: 'ProjectManagement', params: { changedInfo:obj } });
           })
           .catch( (error) => {
             console.log(error);

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-view />
+    <router-view/>
     <div class="top">项目管理</div>
     <div class="contentP">
       <p>信管工作室</p>
@@ -8,10 +8,10 @@
         添加项目
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
           <el-form :model="form">
-            <el-form-item label="项目名称" :label-width="formLabelWidth" >
+            <el-form-item label="项目名称" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="正确填写项目名" v-model="addProjectName"></el-input>
             </el-form-item>
-            <el-form-item label="项目地址" :label-width="formLabelWidth" >
+            <el-form-item label="项目地址" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="" v-model="addProjectUrl"></el-input>
             </el-form-item>
             <el-form-item label="上线时间" :label-width="formLabelWidth">
@@ -77,16 +77,17 @@
         </el-dropdown-menu>
       </el-dropdown>
       <el-button
-      type="danger"
-      @click.prevent='removeSelection()'
-      :disabled="isDisabled"
+        type="danger"
+        @click.prevent='removeSelection()'
+        :disabled="isDisabled"
       >
         删除选中项目
       </el-button>
       <el-button
         class="filterDown"
         @click="show3 = !show3"
-      >过滤</el-button>
+      >过滤
+      </el-button>
       <span id='state'>
         (共有 {{tableData.length}} 个项目)
       </span>
@@ -95,11 +96,11 @@
           <div v-show="show3">
             <!-- <div class="transition-box">el-collapse-transition</div> -->
             <div class="transition-box">
-              <span>项目编号：<el-input class="filter"></el-input></span>
-              <span>项目名称：<el-input class="filter"></el-input></span>
-              <span>项目网址：<el-input class="filter"></el-input></span><br>
-              <span>上线时间：<el-input class="filter"></el-input></span>
-              <el-button class="primary" type="primary" style="margin-left:160px;">过滤</el-button>
+              <span>项目编号：<el-input class="filter" v-model="filterProjectId"></el-input></span>
+              <span>项目名称：<el-input class="filter" v-model="filterProjectName"></el-input></span>
+              <span>项目网址：<el-input class="filter" v-model="filterProjectUrl"></el-input></span><br>
+              <span>上线时间：<el-input class="filter" v-model="filterOnlineTime"></el-input></span>
+              <el-button class="primary" type="primary" style="margin-left:160px;" @click="getFilterProjectInfo">过滤</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -195,38 +196,45 @@
 </template>
 
 <style>
-  *{
+  * {
     margin: 0;
     padding: 0;
   }
+
   .top {
     font-size: 19px;
     line-height: 60px;
     padding-left: 20px;
-    background-color:#fafafa;
+    background-color: #fafafa;
   }
-  .contentP p{
+
+  .contentP p {
     font-size: 15px;
     line-height: 70px;
     padding-left: 30px;
   }
+
   .upFiles {
     margin: 10px 10px;
   }
-  .upload{
+
+  .upload {
     margin: 10px 10px;
   }
-  .uploadMould{
+
+  .uploadMould {
     color: #409eff;
     cursor: pointer;
   }
+
   /* .content:nth-child(4){
     height:0px!important;
   } */
-  .moreMenu{
+  .moreMenu {
     padding-left: 30px;
     display: inline-block;
   }
+
   .transition-box {
     height: 210px;
     padding-top: 30px;
@@ -235,39 +243,47 @@
     background-color: #f1f2f4;
     box-sizing: border-box;
   }
-  .transition-box>span{
-    margin-left:80px;
-    margin-top:8px;
+
+  .transition-box > span {
+    margin-left: 80px;
+    margin-top: 8px;
   }
-  .filter{
-    width:190px;
+
+  .filter {
+    width: 190px;
     padding-top: 8px;
   }
-  .increaseInput{
-    width:260px;
+
+  .increaseInput {
+    width: 260px;
   }
-  .primary{
+
+  .primary {
     margin-left: 130px;
     margin-top: 8px;
   }
-  .increaseMember{
+
+  .increaseMember {
     background-color: #409EFF;
-    border:0;
+    border: 0;
   }
+
   /* .moreMenu div :first-child{
     width: 60px;
     height: 30px;
   } */
-  #deleteSelection{
+  #deleteSelection {
     margin-left: 5px;
     margin-top: 16px;
   }
-  .pagination{
+
+  .pagination {
     text-align: center;
     margin-top: 15px;
     margin-bottom: 15px;
   }
-  .editor{
+
+  .editor {
     border: 1px solid #c7ccd3;
     cursor: pointer;
     color: #c7ccd3;
@@ -277,29 +293,36 @@
     border-radius: 2px;
     border: 1px solid #c7ccd3;
   }
-  .el-input__icon:after{
+
+  .el-input__icon:after {
     display: none;
   }
-  .el-icon-arrow-up:before{
+
+  .el-icon-arrow-up:before {
     display: none;
   }
-  .editor div input{
+
+  .editor div input {
     width: 0px;
     height: 0px;
     border: 0px;
   }
+
   .el-form-item {
     margin-bottom: 10px;
   }
+
   .el-dialog__body {
     padding: 20px 20px;
   }
-  #state{
+
+  #state {
     position: relative;
     float: right;
     margin-right: 250px;
   }
-  .el-checkbox+.el-checkbox {
+
+  .el-checkbox + .el-checkbox {
     margin-left: 5px;
   }
 </style>
@@ -308,106 +331,69 @@
   const COMPANYID = '1204695257@qq.com';
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
-  data () {
-    return {
-      activeNames: ['1'],
-      input10: '',
-      show3: false,
-      currentPage: 1,
-      pagesize:10,
-      tableData:[{
-      companyId: '',
-      projectId: '',
-      projectUrl: '',
-      projectName: '',
-      onlineTime: '',
-    }],
-      value: '',
-      dialogFormVisible: false,
-      dialogVisible: false,
-      editFormVisible: false,
-      form: {
-        email: '',
-        studentId: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
-      formLabelWidth: '140px',
-      radio: '1',
-      checked: true,
-      addCompanyId: '',
-      addProjectId: '',
-      addProjectName: '',
-      addProjectUrl: '',
-      addOnlineTime: '',
-      companyId: '',
-      projectId: '',
-      projectName: '',
-      projectUrl: '',
-      onlineTime: '',
-      isDisabled: false,
-      fileList:''
+    data() {
+      return {
+        activeNames: ['1'],
+        input10: '',
+        show3: false,
+        currentPage: 1,
+        pagesize: 10,
+        tableData: [{
+          companyId: '',
+          projectId: '',
+          projectUrl: '',
+          projectName: '',
+          onlineTime: '',
+        }],
+        value: '',
+        dialogFormVisible: false,
+        dialogVisible: false,
+        editFormVisible: false,
+        form: {
+          email: '',
+          studentId: '',
+          delivery: false,
+          type: [],
+          resource: '',
+          desc: ''
+        },
+        formLabelWidth: '140px',
+        radio: '1',
+        checked: true,
+        addCompanyId: '',
+        addProjectId: '',
+        addProjectName: '',
+        addProjectUrl: '',
+        addOnlineTime: '',
+        companyId: '',
+        projectId: '',
+        projectName: '',
+        projectUrl: '',
+        onlineTime: '',
+        isDisabled: false,
+        fileList: '',
+        filterProjectId: '',
+        filterProjectName: '',
+        filterProjectUrl: '',
+        filterOnlineTime: ''
 
-    }
-  },
-  created: function () {
-    var data = [];
-    let _this = this;
-    var params = new URLSearchParams();
-    params.append('currentPage', this.currentPage);
-    params.append('size', this.pagesize);
-    this.$axios.post(PREFIX+'/project/option.do?'+params.toString(), {
-      companyId:COMPANYID
-    }).then(function (res) {
-      for (let i = 0; i < res.data.object.data.length; i++) {
-        var obj = {};
-        obj.projectId = res.data.object.data[i].projectId;
-        obj.projectName = res.data.object.data[i].projectName;
-        obj.projectUrl = res.data.object.data[i].projectUrl;
-        obj.onlineTime = res.data.object.data[i].onlineTime;
-        data[i] = obj;
       }
-      _this.tableData = data;
-      console.log(data);
-    }).catch(function (error) {
-
-    })
-  },
-  methods: {
-    addDataSave: function() {
-      this.dialogFormVisible = false;
-      this.$axios.post(PREFIX+'project/project.do',{
-        companyId : COMPANYID,
-      projectName :this.addProjectName,
-      projectUrl : this.addProjectUrl,
-      onlineTime : this.addOnlineTime
-      })
-      .then((res)=> {
-        //todo 从后端查询
-      }).catch(function (error) {
-        alert(error);
-      })
     },
-    editDataSave() {
-      this.editFormVisible = false;
+    created: function () {
       var data = [];
       let _this = this;
-      var editData = new Object;
-      editData.companyId = COMPANYID;
-      editData.projectId = this.projectId;
-      editData.projectName = this.projectName;
-      editData.projectUrl = this.projectUrl;
-      editData.onlineTime = this.onlineTime;
-      this.$axios.put(PREFIX+'project/project.do',editData)
-      .then(function (res) {
-        for (let i = 0; i < res.data.object.length; i++) {
+      var params = new URLSearchParams();
+      params.append('currentPage', this.currentPage);
+      params.append('size', this.pagesize);
+      this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+        companyId: COMPANYID
+      }).then(function (res) {
+        for (let i = 0; i < res.data.object.data.length; i++) {
           var obj = {};
-          obj.projectId = res.data.object[i].projectId;
-          obj.projectName = res.data.object[i].projectName;
-          obj.projectUrl = res.data.object[i].projectUrl;
-          obj.onlineTime = res.data.object[i].onlineTime;
+          obj.projectId = res.data.object.data[i].projectId;
+          obj.projectName = res.data.object.data[i].projectName;
+          obj.projectUrl = res.data.object.data[i].projectUrl;
+          obj.onlineTime = res.data.object.data[i].onlineTime;
           data[i] = obj;
         }
         _this.tableData = data;
@@ -416,88 +402,146 @@
 
       })
     },
-    deleteRow(index) {
-      console.log(index);
-      let data = index;
-      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(()=>{
-        this.$axios.post(PREFIX + '/project/delProject.do', {
-          companyId:COMPANYID,
-          projectId:data
-        }).then((response) => {
-          console.log(response);
-          for (let i = 0; i < this.tableData.length; i++) {
-            this.tableData.forEach((v, i) => {
-              if (v.projectId === index) {
-                this.tableData.splice(i, 1);
+    methods: {
+      addDataSave: function () {
+        this.dialogFormVisible = false;
+        this.$axios.post(PREFIX + 'project/project.do', {
+          companyId: COMPANYID,
+          projectName: this.addProjectName,
+          projectUrl: this.addProjectUrl,
+          onlineTime: this.addOnlineTime
+        })
+          .then((res) => {
+            //todo 从后端查询
+          }).catch(function (error) {
+          alert(error);
+        })
+      },
+      getFilterProjectInfo() {
+        var params = new URLSearchParams();
+        params.append('page', this.currentPage);
+        params.append('size', this.pagesize);
+        this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+          companyId: COMPANYID,
+          projectId: this.filterProjectId,
+          projectName: this.filterProjectName,
+          projectUrl: this.filterProjectUrl,
+          onlineTime: this.filterOnlineTime
+        })
+          .then((response) => {
+            console.log('根据条件查询成功');
+            this.tableData = response.data.object.data;
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      },
+      editDataSave() {
+        this.editFormVisible = false;
+        var data = [];
+        let _this = this;
+        var editData = new Object;
+        editData.companyId = COMPANYID;
+        editData.projectId = this.projectId;
+        editData.projectName = this.projectName;
+        editData.projectUrl = this.projectUrl;
+        editData.onlineTime = this.onlineTime;
+        this.$axios.put(PREFIX + 'project/project.do', editData)
+          .then(function (res) {
+            for (let i = 0; i < res.data.object.length; i++) {
+              var obj = {};
+              obj.projectId = res.data.object[i].projectId;
+              obj.projectName = res.data.object[i].projectName;
+              obj.projectUrl = res.data.object[i].projectUrl;
+              obj.onlineTime = res.data.object[i].onlineTime;
+              data[i] = obj;
+            }
+            _this.tableData = data;
+            console.log(data);
+          }).catch(function (error) {
+
+        })
+      },
+      deleteRow(index) {
+        console.log(index);
+        let data = index;
+        this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$axios.post(PREFIX + '/project/delProject.do', {
+            companyId: COMPANYID,
+            projectId: data
+          }).then((response) => {
+            if (response.data.code == 1) {
+              for (let i = 0; i < this.tableData.length; i++) {
+                this.tableData.forEach((v, i) => {
+                  if (v.projectId === index) {
+                    this.tableData.splice(i, 1);
+                  }
+                })
               }
-            })
-          }
-          console.log(response);
-          console.log(response.data);
-          if (response.data.code == 1) {
-            this.$message({
-              type: 'info',
-              message: '删除成功!'
-            });
-          }else{
-            this.$message({
-              type: 'info',
-              message: '删除失败!'
-            });
-          }
+              this.$message({
+                type: 'info',
+                message: '删除成功!'
+              });
+            } else {
+              this.$message({
+                type: 'info',
+                message: '删除失败!'
+              });
+            }
+          })
         })
-      })
-    },
-    handleSizeChange: function (size) {
+      },
+      handleSizeChange: function (size) {
         this.pagesize = size;
-    },
-    handleCurrentChange: function(currentPage){
+      },
+      handleCurrentChange: function (currentPage) {
         this.currentPage = currentPage;
-    },
-    handleChange (val) {
-      console.log(val)
-    },
-    toggleSelection (rows) {
-      if (rows) {
-        rows.forEach(row => {
-          this.$refs.multipleTable.toggleRowSelection(row)
-        })
-      } else {
-        this.$refs.multipleTable.clearSelection()
-      }
-    },
-    handleSelectionChange (val) {
-      this.multipleSelection = val
-    },
-    handleRemove (file, fileList) {
-      console.log(file, fileList)
-    },
-    handlePreview (file) {
-      console.log(file)
-    },
-    handleExceed (files, fileList) {
-      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-    },
-    beforeRemove (file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`)
-    },
-    handleClose (done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done()
-        })
-        .catch(_ => {})
-    },
-    handleEdit(index, row) {
+      },
+      handleChange(val) {
+        console.log(val)
+      },
+      toggleSelection(rows) {
+        if (rows) {
+          rows.forEach(row => {
+            this.$refs.multipleTable.toggleRowSelection(row)
+          })
+        } else {
+          this.$refs.multipleTable.clearSelection()
+        }
+      },
+      handleSelectionChange(val) {
+        this.multipleSelection = val
+      },
+      handleRemove(file, fileList) {
+        console.log(file, fileList)
+      },
+      handlePreview(file) {
+        console.log(file)
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${file.name}？`)
+      },
+      handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done()
+          })
+          .catch(_ => {
+          })
+      },
+      handleEdit(index, row) {
         console.log(index, row);
-    },
-    handleDelete(index, row) {
-      console.log(index, row);
+      },
+      handleDelete(index, row) {
+        console.log(index, row);
+      }
     }
   }
-}
 </script>
