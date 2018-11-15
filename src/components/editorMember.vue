@@ -93,15 +93,21 @@ export default {
   },
   created: function() {
     if(this.$route.query.memberOriginalInfo.sex == '女'){
-      this.radio = '0';
+      this.radio = '1';
     }
     else{
-      this.radio = '1';
+      this.radio = '0';
     }
   },
   methods: {
     //编辑成员信息(success)
     putEditorMemberInfo() {
+      if (this.radio == '0'){
+        this.sex = '男'
+      }
+      if (this.radio == '1'){
+        this.sex='女'
+      }
       let form = {
         companyId: this.companyId,
         num: this.num,

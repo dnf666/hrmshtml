@@ -253,24 +253,30 @@ export default {
     // 公司成员数字动态增加
     countIncreaseMember () {
       let num = 0;
-      let t =  setInterval(() => {
-      num++;
-      this.memberCounting = num;
-      if(num == this.memberCount){
-        clearInterval(t);
+      this.memberCounting = 0;
+      if(this.memberCount != 0) {
+        let t = setInterval(() => {
+          num++;
+          this.memberCounting = num;
+          if (num == this.memberCount) {
+            clearInterval(t);
+          }
+        }, 100);
       }
-      }, 100);
     },
     // 公司项目数字动态增加
     countIncreaseProject (){
       let num = 0;
+      this.projectCounting = 0;
+      if (this.projectCount != 0){
       let t =  setInterval(() => {
       num++;
       this.projectCounting = num;
       if(num == this.projectCount){
         clearInterval(t);
       }
-      }, 100);
+      }, 100);}
+
     },
     // 公司项目动态圆环
     progeressBar (val) {

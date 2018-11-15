@@ -110,63 +110,76 @@
       </div>
       <hr>
       <el-table
-        class="bookInfo"
+        id='out-table'
+        class="bookData"
         ref="multipleTable"
         :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
-        <template slot-scope="scope">{{ scope.row.num }}</template>
         <el-table-column
           type="selection"
-          width="80">
+          width="55"
+        >
         </el-table-column>
+        <!-- 图书状态编辑 -->
         <el-table-column
+          width="50">
+          <template slot-scope="scope">
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                <i class="editor el-icon-caret-bottom"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>
+                  <router-link :to="{ path:'/BookMangement/Editor',query: { bookOriginalInfo: scope.row} }">
+                    编辑图书
+                  </router-link>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="deleteBook(scope.row.num)">
+                  删除图书
+                  </span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+        <!-- 成员信息 -->
+        <el-table-column
+          id="bookId"
           prop="bookId"
           label="图书编号"
-          width="250"
-          show-overflow-tooltip="true">
+          width="300"
+          :show-overflow-tooltip="true">
+          <template slot-scope="scope">{{ scope.row.bookId }}</template>
         </el-table-column>
         <el-table-column
           prop="bookName"
-          label="图书名称"
-          width="250"
-          show-overflow-tooltip="true">
+          label="图书名"
+          width="200"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
+          prop="version"
+          label="图书版本"
+          width="170"
+          :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="category"
-          label="图书类型"
-          width="250"
-          show-overflow-tooltip="true">
+          label="类型"
+          width="170">
         </el-table-column>
         <el-table-column
           prop="quantity"
           label="数量"
-          width="250">
+          width="300"
+          :show-overflow-tooltip="true">
         </el-table-column>
-        <el-table-column
-          prop="version"
-          label="版本号"
-          width="250"
-          show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column label="操作">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="editFormVisible = true">编辑
-            </el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click.native.prevent="deleteRow(scope.$index, tableData)">删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- <el-col :span="7" id="deleteSelection">
-        <el-button :plain="true" type="danger" size="small" icon="delete" @click="removeSelection">删除所选</el-button>
-      </el-col> -->
+        </el-table>
+
       <el-pagination
         class="pagination"
         background
@@ -330,7 +343,10 @@
     float: right;
     margin-right: 250px;
   }
-
+  .bookInfo {
+    position: relative;
+    top: -50px;
+  }
   .el-checkbox + .el-checkbox {
     margin-left: 5px;
   }
@@ -340,7 +356,7 @@
 
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://localhost:8089';
+  const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {
       return {
@@ -355,7 +371,7 @@
             bookId: '',
             bookName: '',
             category: '',
-            quantity: '',
+            num: '',
             version: '',
           }
         ],
@@ -376,18 +392,15 @@
         deleteVisible: false,
         //编辑界面是否显示
         editFormVisible: false,
-        addcompany: '',
         addname: '',
         addcategory: '',
         addquantity: '',
          addversion: '',
         newBookId: '',
-        newCompanyId: '',
         newBookName: '',
         newCategory: '',
         newQuantity: '',
         newVersion: '',
-        filterCompanyId: '',
         filterBookId: '',
         filterBookName: '',
         filterCategory: '',
@@ -400,10 +413,10 @@
       var params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
-      this.$axios.post(PREFIX + '/hrms/book/filter.do?' + params.toString(), {
+      this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), {
         companyId: COMPANYID
-      })
-        .then(function (res) {
+      }).then((res)=> {
+        console.log(res);
           this.tableData = res.data.object.data;
         }).catch(function (error) {
 
@@ -416,18 +429,25 @@
       },
       addDataSave: function () {
         this.dialogFormVisible = false;
-        var data = [];
-        let _this = this;
-
-        this.$axios.post(PREFIX + 'hrms/book/book.do', {
+        this.$axios.post(PREFIX + 'book/book.do', {
           companyId: COMPANYID,
           bookName: this.addname,
           category: this.addcategory,
           quantity: parseInt(this.addquantity),
           version: this.addversion
-        })
-          .then(function (res) {
+        }).then((res)=> {
             console.log(res.data.msg);
+            if (res.data.code == 1) {
+              this.$message({
+                type: 'info',
+                message: '添加成功!'
+              });
+            }else {
+              this.$message({
+                type: 'info',
+                message: '添加失败!'
+              });
+            }
           }).catch(function (error) {
           alert(error);
         })

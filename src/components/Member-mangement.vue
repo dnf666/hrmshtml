@@ -158,7 +158,7 @@
                   删除成员
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item>离职确认</el-dropdown-item>
+                <el-dropdown-item @click="intoWhereAbout(scope.row)">离职确认</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -628,17 +628,6 @@
       },
       //根据条件查找成员信息(success)
       getFilterMemberInfo() {
-        let data = [
-          this.filterCompanyId,
-          this.filterNum,
-          this.filterName,
-          this.radio,
-          this.filterEmail,
-          this.filterProfession,
-          this.filterDepartment,
-          this.filterGrade,
-          this.filterPhoneNumber
-        ];
         var params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
@@ -666,6 +655,9 @@
           .catch((error) => {
             alert(error);
           });
+      },
+      intoWhereAbout(object){
+        //todo 要添加一个弹框，并且
       },
       //得到文件内容
       getExcel(event) {
