@@ -142,7 +142,7 @@
   } */
   .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 240px;
-    min-height: 700px;
+    min-height: 800px;
   }
   .content{
     width: 180px;

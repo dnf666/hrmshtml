@@ -102,8 +102,9 @@
               <span>图书名：<el-input class="filter" v-model="filterBookName"></el-input></span><br>
               <span>书类型：<el-input class="filter" v-model="filterCategory"></el-input></span>
               <span>数量：<el-input class="filter" v-model="filterQuantity"></el-input></span>
+              <span>版本：<el-input class="filter" v-model="filterVersion"></el-input></span>
 
-              <el-button class="primary" type="primary">过滤</el-button>
+              <el-button class="primary" type="primary" @click="filterBook">过滤</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -138,7 +139,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <span
-                    @click="deleteBook(scope.row.num)">
+                    @click="deleteBook(scope.row.bookId)">
                   删除图书
                   </span>
                 </el-dropdown-item>
@@ -178,7 +179,7 @@
           width="300"
           :show-overflow-tooltip="true">
         </el-table-column>
-        </el-table>
+      </el-table>
 
       <el-pagination
         class="pagination"
@@ -191,35 +192,6 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="tableData.length">
       </el-pagination>
-
-      <el-dialog title="编辑图书" :visible.sync="editFormVisible" :append-to-body='true' top='100px' width="550px" center>
-        <el-form :model="editForm">
-          <el-form-item label="图书编号" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该图书更改编号" v-model="newBookId"></el-input>
-          </el-form-item>
-          <el-form-item label="公司编号" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该图书更改公司编号" v-model="newCompanyId"></el-input>
-          </el-form-item>
-          <el-form-item label="图书名称" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该图书更改书名" v-model="newBookName"></el-input>
-          </el-form-item>
-          <el-form-item label="图书类型" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="更改图书类型" v-model="newCategory"></el-input>
-          </el-form-item>
-          <el-form-item label="图书数量" :label-width="formLabelWidth">
-            <el-input class="increaseInput" v-model="newQuantity"></el-input>
-          </el-form-item>
-          <el-form-item label="图书版本" :label-width="formLabelWidth">
-            <el-input class="increaseInput" v-model="newVersion"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="editFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editDataSave">保存</el-button>
-        </div>
-      </el-dialog>
-
-
     </div>
   </div>
 </template>
@@ -343,18 +315,17 @@
     float: right;
     margin-right: 250px;
   }
+
   .bookInfo {
     position: relative;
     top: -50px;
   }
+
   .el-checkbox + .el-checkbox {
     margin-left: 5px;
   }
 </style>
-<!--<script src='../../config/index.js'></script>-->
 <script>
-
-
   const COMPANYID = '1204695257@qq.com'
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
@@ -395,7 +366,7 @@
         addname: '',
         addcategory: '',
         addquantity: '',
-         addversion: '',
+        addversion: '',
         newBookId: '',
         newBookName: '',
         newCategory: '',
@@ -410,21 +381,19 @@
       }
     },
     created: function () {
-      var params = new URLSearchParams();
+      let params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
       this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), {
         companyId: COMPANYID
-      }).then((res)=> {
-        console.log(res);
-          this.tableData = res.data.object.data;
-        }).catch(function (error) {
+      }).then((res) => {
+        this.tableData = res.data.object.data;
+      }).catch(function (error) {
 
       })
     },
     methods: {
       submitUpload() {
-        dialogVisible = false;
         this.$refs.upload.submit();
       },
       addDataSave: function () {
@@ -435,20 +404,20 @@
           category: this.addcategory,
           quantity: parseInt(this.addquantity),
           version: this.addversion
-        }).then((res)=> {
-            console.log(res.data.msg);
-            if (res.data.code == 1) {
-              this.$message({
-                type: 'info',
-                message: '添加成功!'
-              });
-            }else {
-              this.$message({
-                type: 'info',
-                message: '添加失败!'
-              });
-            }
-          }).catch(function (error) {
+        }).then((res) => {
+          if (res.data.code == 1) {
+            this.$message({
+              type: 'info',
+              message: '添加成功!'
+            });
+
+          } else {
+            this.$message({
+              type: 'info',
+              message: '添加失败!'
+            });
+          }
+        }).catch(function (error) {
           alert(error);
         })
       },
@@ -485,32 +454,33 @@
       beforeRemove(file, fileList) {
         return this.$confirm(`确定移除 ${file.name}？`)
       },
-      deleteRow(index, rows) {
-        this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          var deleteData = new Object();
-          deleteData.bookId = this.tableData[index].bookId;
-          this.$axios.delete(PREFIX+'/hrms/'+COMPANYID+'/'+bookId+'.do');
-        }).then((res) => {
-          rows.splice(index, 1);
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        })
-      },
+      deleteBook(index) {
+          let book = new Object;
+          book.companyId = COMPANYID;
+          book.bookId = index;
+          this.$axios.post(PREFIX + '/book/delBook.do',book).then((response) => {
+              console.log(response.data.message);
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+              for (let i = 0; i < this.tableData.length; i++) {
+                this.tableData.forEach((v, i) => {
+                  if (v.num === index) {
+                    this.tableData.splice(i, 1);
+                  }
+                });
+              }
+            })
+            // .catch((error) => {
+            //   this.$message({
+            //     type: 'info',
+            //     message: error
+            //   });
+            // });
+        },
       editDataSave() {
         this.editFormVisible = false;
-        var data = [];
-        let _this = this;
         var editData = new Object;
         editData.bookId = this.bookId;
         editData.companyId = COMPANYID;
@@ -518,22 +488,39 @@
         editData.category = this.category;
         editData.quantity = this.quantity;
         editData.version = this.version;
-        this.$axios.put(PREFIX+'/hrms/book/book.do', editData)
-          .then(function (res) {
-            for (let i = 0; i < res.data.object.length; i++) {
-              var obj = {};
-              obj.bookId = res.data.object[i].bookId;
-              obj.bookName = res.data.object[i].bookName;
-              obj.bookType = res.data.object[i].category;
-              obj.amount = res.data.object[i].quantity;
-              obj.version = res.data.object[i].version;
-              data[i] = obj;
-            }
-            _this.tableData = data;
+        this.$axios.put(PREFIX + '/hrms/book/book.do', editData)
+          .then((res) =>{
+            this.tableData = res.data.object;
           }).catch(function (error) {
-            alert(error);
+          alert(error);
 
         })
+      },
+      filterBook() {
+        let params = new URLSearchParams();
+        params.append('currentPage', this.currentPage);
+        params.append('size', this.pagesize);
+        let book = new Object;
+        if (this.filterBookId != '') {
+          book.bookId = this.filterBookId;
+        }
+        book.companyId = COMPANYID;
+        if (this.filterBookName != '') {
+          book.bookName = this.filterBookName;
+        }
+        if (this.filterCategory != '') {
+          book.category = this.filterCategory;
+        }
+        if (this.filterVersion != '') {
+          book.version = this.filterVersion;
+        }
+        if (this.quantity != '') {
+          book.quantity = parseInt(this.filterQuantity);
+        }
+        book.version = this.version;
+        this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book).then((response => {
+          this.tableData = response.data.object.data;
+        }))
       }
     }
   }
