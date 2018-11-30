@@ -76,14 +76,6 @@
                 </router-link>
               </el-menu-item-group>
             </el-submenu>
-            <router-link to="/MemberWhereabouts">
-              <el-menu-item index="/MemberWhereabouts">
-                <i class="el-icon-share"></i>
-                <span slot="title">
-                  人员去向
-                </span>
-              </el-menu-item>
-            </router-link>
           </el-tabs>
         </el-menu>
       </div>

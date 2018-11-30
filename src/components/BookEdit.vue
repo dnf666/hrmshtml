@@ -4,40 +4,36 @@
       <sapn>当前位置：</sapn>
       <el-breadcrumb class="breadcrumbEditor" separator=">">
         <el-breadcrumb-item>公司设置</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/MemberMangement' }">成员管理</el-breadcrumb-item>
-        <el-breadcrumb-item>编辑成员</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/BookMangement' }">图书管理</el-breadcrumb-item>
+        <el-breadcrumb-item>编辑图书</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div id="editorTitle">编辑成员</div>
+    <div id="editorTitle">编辑图书</div>
     <el-tabs v-model="activeName" class="tabsEditor" type="card">
       <el-tab-pane label="基本信息" name="first">
         <el-form :model="form">
-          <el-form-item label="学号*" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="正确填写学号"></el-input>
+          <el-form-item label="公司ID*" :label-width="formLabelWidth">
+            <el-input class="increaseInput" disabled="disabled" v-model="companyId"></el-input>
           </el-form-item>
-          <el-form-item label="姓名" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="真实姓名"></el-input>
+          <el-form-item label="图书编号" :label-width="formLabelWidth">
+            <el-input class="increaseInput" placeholder="图书编号" v-model="bookId"></el-input>
           </el-form-item>
-          <el-form-item label="邮箱" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="登录邮箱"></el-input>
+          <el-form-item label="图书名" :label-width="formLabelWidth">
+            <el-input class="increaseInput" placeholder="登录邮箱" v-model="bookName"></el-input>
           </el-form-item>
-          <el-form-item label="性别" :label-width="formLabelWidth">
-            <el-radio v-model="radio" label="1">男</el-radio>
-            <el-radio v-model="radio" label="2">女</el-radio>
+          <el-form-item label="图书版本" :label-width="formLabelWidth">
+            <el-input class="increaseInput" placeholder="图书版本" v-model="version"></el-input>
           </el-form-item>
-          <el-form-item label="职位" :label-width="formLabelWidth">
-            <el-input class="increaseInput"></el-input>
+          <el-form-item label="类型" :label-width="formLabelWidth">
+            <el-input class="increaseInput" placeholder="类型" v-model="category"></el-input>
           </el-form-item>
-          <el-form-item label="电话" :label-width="formLabelWidth">
-            <el-input class="increaseInput"></el-input>
-          </el-form-item>
-          <el-form-item label="专业" :label-width="formLabelWidth">
-            <el-input class="increaseInput"></el-input>
+          <el-form-item label="数量" :label-width="formLabelWidth">
+            <el-input class="increaseInput" placeholder="数量" v-model="quantity"></el-input>
           </el-form-item>
         </el-form>
         <div class="sure">
           <el-button >取 消</el-button>
-          <el-button type="primary">保 存</el-button>
+          <el-button type="primary" @click="putEditorBookInfo">保 存</el-button>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -68,15 +64,50 @@
   }
 </style>
 <script>
+  const COMPANYID = '1204695257@qq.com';
+  const PREFIX = 'http://localhost:8089/hrms/';
 export default {
    data() {
       return {
+        companyId:COMPANYID,
+        bookId: this.$route.query.bookOriginalInfo.bookId,
+        bookName: this.$route.query.bookOriginalInfo.bookName,
+        category: this.$route.query.bookOriginalInfo.category,
+        quantity: this.$route.query.bookOriginalInfo.quantity,
+        version: this.$route.query.bookOriginalInfo.version,
         activeName: 'first',
         formLabelWidth: '70px',
-        radio: '1'
       }
     },
+  created(){
+  console.log(this.$route.query.bookOriginalInfo);
+  },
+
   methods: {
+    putEditorBookInfo(){
+      this.$axios.put(PREFIX+"book/book.do",{
+        companyId: COMPANYID,
+        bookId:this.bookId,
+        bookName: this.bookName,
+        category: this.category,
+        quantity: parseInt(this.quantity),
+        version: this.version
+      }).then((response)=>{
+        console.log(response);
+        if (response.data.code == 1) {
+          this.$message({
+            type: 'info',
+            message:response.data.msg
+          });
+        }else{
+          this.$message({
+            type: 'info',
+            message: response.data.msg
+          });
+        }
+
+      });
+      }
 
   }
 }

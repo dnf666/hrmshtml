@@ -14,6 +14,7 @@ import Register from '@/components/Register'
 import Fristregister from '@/components/Fristregister'
 import Secondregister from '@/components/Secondregister'
 import EditorProject from '@/components/editorProject'
+import EditorBook from '@/components/BookEdit'
 
 Vue.use(Router)
 
@@ -61,6 +62,11 @@ export default new Router({
           path: '/MemberWhereabouts',
           name: 'MemberWhereabouts',
           component: MemberWhereabouts
+        },
+        {
+          path: '/BookMangement/Editor',
+          name: 'EditorBook',
+          component: EditorBook
         },
         {
           path: '/MemberMangement/Editor',
