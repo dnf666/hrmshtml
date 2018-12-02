@@ -34,6 +34,9 @@
             <el-form-item label="专业" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="newProfession"></el-input>
             </el-form-item>
+            <el-form-item label="签约" :label-width="formLabelWidth">
+              <el-input class="increaseInput" v-model="newWhereAbout"></el-input>
+            </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -108,16 +111,19 @@
           <div v-show="show3">
             <div class="transition-box">
               <span>学号：<el-input class="filter" v-model="filterNum"></el-input></span>
-              <span>姓名：<el-input class="filter" v-model="filterName"></el-input></span><br>
+              <span>姓名：<el-input class="filter" v-model="filterName"></el-input></span>
+              <span>邮箱：<el-input class="filter" v-model="filterEmail"></el-input></span>
+              <br>
               <span>性别：
                 <el-radio class='sex' v-model="radio" label="0">男</el-radio>
                 <el-radio class='sex' v-model="radio" label="1">女</el-radio>
               </span>
-              <span>邮箱：<el-input class="filter" v-model="filterEmail"></el-input></span>
-              <span>电话：<el-input class="filter" v-model="filterPhoneNumber"></el-input></span><br>
+              <span>电话：<el-input class="filter" v-model="filterPhoneNumber"></el-input></span>
               <span>专业：<el-input class="filter" v-model="filterProfession"></el-input></span>
+              <br>
               <span>部门：<el-input class="filter" v-model="filterDepartment"></el-input></span>
               <span>年级：<el-input class="filter" v-model="filterGrade"></el-input></span>
+              <span>签约：<el-input class="filter" v-model="filterWhereAbout"></el-input></span>
               <el-button class="primary" type="primary" @click="getFilterMemberInfo">过滤</el-button>
             </div>
           </div>
@@ -158,7 +164,6 @@
                   删除成员
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item @click="intoWhereAbout(scope.row)">离职确认</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -204,6 +209,11 @@
         <el-table-column
           prop="grade"
           label="年级"
+          width="80">
+        </el-table-column>
+        <el-table-column
+          prop="whereAbout"
+          label="签约"
           width="80">
         </el-table-column>
         <el-table-column
@@ -439,6 +449,7 @@
         filterProfession: '',
         filterDepartment: '',
         filterGrade: '',
+        filterWhereAbout:'',
         newCompanyId: '',
         newNum: '',
         newName: '',
@@ -448,6 +459,7 @@
         newDepartment: '',
         newGrade: '',
         newPhoneNumber: '',
+        newWhereAbout:'',
         file: '',
         excelPath: ''
       }
@@ -462,7 +474,6 @@
         }
       })
         .then((response) => {
-          console.log('获取成员总数成功');
           this.memberCount = response.data.object;
         })
         .catch((error) => {
@@ -598,7 +609,8 @@
           grade: this.newGrade,
           department: this.newDepartment,
           phoneNumber: this.newPhoneNumber,
-          profession: this.newProfession
+          profession: this.newProfession,
+          whereAbout:this.newWhereAbout
 
         })
           .then((response) => {
@@ -646,7 +658,8 @@
             profession: this.filterProfession,
             department: this.filterDepartment,
             grade: this.filterGrade,
-            phoneNumber: this.filterPhoneNumber
+            phoneNumber: this.filterPhoneNumber,
+            whereAbout:this.filterWhereAbout
           })
           .then((response) => {
             console.log('根据条件查询成功');

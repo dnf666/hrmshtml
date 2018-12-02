@@ -117,7 +117,8 @@ export default {
         profession: this.profession,
         department: this.department,
         grade: this.grade,
-        phoneNumber: this.phoneNumber
+        phoneNumber: this.phoneNumber,
+        whereAbout:this.whereAbout
       };
       let obj = JSON.stringify(form);
       console.log(obj);
@@ -131,7 +132,9 @@ export default {
           profession: this.profession,
           department: this.department,
           grade: this.grade,
-          phoneNumber: this.phoneNumber
+          phoneNumber: this.phoneNumber,
+          whereAbout:this.whereAbout
+
       })
       .then( (response) => {
         console.log(response);

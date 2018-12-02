@@ -93,19 +93,10 @@ export default {
         quantity: parseInt(this.quantity),
         version: this.version
       }).then((response)=>{
-        console.log(response);
-        if (response.data.code == 1) {
-          this.$message({
-            type: 'info',
-            message:response.data.msg
-          });
-        }else{
-          this.$message({
-            type: 'info',
-            message: response.data.msg
-          });
-        }
-
+        this.$message({
+          type: 'info',
+          message:response.data.msg
+        });
       });
       }
 

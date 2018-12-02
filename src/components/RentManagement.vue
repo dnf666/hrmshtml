@@ -8,9 +8,6 @@
         添加借书记录
         <el-dialog title="添加借书记录" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
           <el-form :model="form">
-            <el-form-item label="公司编号" :label-width="formLabelWidth">
-              <el-input class="increaseInput" placeholder=" " v-model="addCompanyId"></el-input>
-            </el-form-item>
             <el-form-item label="图书名称" :label-width="formLabelWidth" >
               <el-input class="increaseInput" placeholder=" " v-model="addBookName"></el-input>
             </el-form-item>
@@ -299,7 +296,9 @@
   }
 </style>
 <script>
-export default {
+  const COMPANYID = '1204695257@qq.com';
+  const PREFIX = 'http://localhost:8089/hrms/';
+  export default {
   data () {
     return {
       activeNames: ['1'],
@@ -307,7 +306,15 @@ export default {
       show3: false,
       currentPage: 1,
       pagesize:10,
-      tableData: [],
+      tableData: [
+        {
+          bookRecord,
+          bookName,
+          lendTime,
+          returnTime,
+          borrower
+        }
+      ],
       value: '',
       dialogFormVisible: false,
       dialogVisible: false,
@@ -335,6 +342,19 @@ export default {
       borrower: ''
 
     }
+  },
+
+  created: function () {
+    let params = new URLSearchParams();
+    params.append('currentPage', this.currentPage);
+    params.append('size', this.pagesize);
+    this.$axios.post(PREFIX + 'bookLendInfo/filter.do?' + params.toString(), {
+      companyId: COMPANYID
+    }).then((res) => {
+      this.tableData = res.data.object.data;
+    }).catch(function (error) {
+
+    })
   },
   methods: {
     addDataSave: function() {
