@@ -728,7 +728,7 @@
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.get('http://192.168.43.243:8080/hrms/download.do', {
+          this.$axios.get(PREFIX+'download.do', {
             params: {
               tableTitle: 'member'
             }
