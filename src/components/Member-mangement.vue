@@ -412,7 +412,7 @@
   import XLSX from 'xlsx'
 
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://localhost:8089/hrms';
+  const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {
       return {
@@ -728,17 +728,14 @@
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.get(PREFIX+'download.do', {
-            params: {
-              tableTitle: 'member'
-            }
-          })
+          this.$axios.post(PREFIX+'download.do?name=member.xlsx', {
+          },{responseType:"arraybuffer"})
             .then((response) => {
-              console.log(response.data);
-              let blob = new Blob([response.data.object.body], {type: "application/vnd.ms-excel"});
+              console.log(response);
+              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
               var link = document.createElement('a');
               link.href = window.URL.createObjectURL(blob);
-              link.download = "导入数据模板";
+              link.download = "导入数据模板.xlsx";
               link.click();
               console.log('下载模板成功');
             })
