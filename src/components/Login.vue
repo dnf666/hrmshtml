@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  const PREFIX = 'http://localhost:8089';
+  const PREFIX = 'http://113.250.153.23:8089';
 export default {
   name: 'Login',
   data() {
@@ -38,14 +38,19 @@ export default {
   },
   methods: {
     onSubmit() {
+      let that = this;
       //提交请求
       this.$axios.post(PREFIX+'/hrms/company/login.do', {
         email: this.email,
         password: this.password
       })
       .then((response)=> {
-        let that = this;
         if (response.data.status == 0) {
+          console.log('返回成功')
+        // 触发setIsLogin方法改变vuex中isLogin的值，
+          that.$store.commit('setIsLogin', true);
+        // 改变localStorage中isLogin的值，
+          window.sessionStorage.setItem('isLogin', true);
           that.$router.push({path: '/home'})
         }
         else {

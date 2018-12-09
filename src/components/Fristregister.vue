@@ -43,7 +43,7 @@
 
 <script>
   const COMPANYID = '1204695257@qq.com'
-  const PREFIX = 'http://localhost:8089/hrms';
+  const PREFIX = 'http://113.251.222.194:8089/hrms';
   const DEFAULT_PHOTO = './../assets/images/logo.png';
     //验证是否能下一步
     let isnext = (that) => {

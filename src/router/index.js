@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../store/index'
 import CompanyInfo from '@/components/Company-information'
 import MemberMangement from '@/components/Member-mangement'
 import MemberWhereabouts from '@/components/Member-whereabouts'
@@ -18,88 +19,153 @@ import EditorBook from '@/components/BookEdit'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'Login',
-      component: Login
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    meta: {
+      requiresAuth: false
     },
-    {
-      path: '/register',
-      name: 'Register',
-      component: Register,
-      children: [
-        {
-          path: '/',
-          name: 'Fristregister',
-          component: Fristregister
-        }
-      ]
+    component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register,
+    children: [
+      {
+        path: '/',
+        name: 'Fristregister',
+        meta: {
+          requiresAuth: true
+        },
+        component: Fristregister
+      }
+    ]
+  },
+  {
+    path: '/register/Secondregister',
+    name: 'Secondregister',
+    meta: {
+      requiresAuth: true
     },
-    {
-      path: '/register/Secondregister',
-      name: 'Secondregister',
-      component: Secondregister
-    },
-    {
-      path: '/Home',
-      name: 'Home',
-      component: Home,
-      redirect: '/CompanyInfo', 
-      children: [
-        {
-          path: '/CompanyInfo',
-          name: 'CompanyInfo',
-          component: CompanyInfo
+    component: Secondregister
+  },
+  {
+    path: '/Home',
+    name: 'Home',
+    component: Home,
+    redirect: '/CompanyInfo',
+    children: [
+      {
+        path: '/CompanyInfo',
+        name: 'CompanyInfo',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/MemberMangement',
-          name: 'MemberMangement',
-          component: MemberMangement
+        component: CompanyInfo
+      },
+      {
+        path: '/MemberMangement',
+        name: 'MemberMangement',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/MemberWhereabouts',
-          name: 'MemberWhereabouts',
-          component: MemberWhereabouts
+        component: MemberMangement
+      },
+      {
+        path: '/MemberWhereabouts',
+        name: 'MemberWhereabouts',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/BookMangement/Editor',
-          name: 'EditorBook',
-          component: EditorBook
+        component: MemberWhereabouts
+      },
+      {
+        path: '/BookMangement/Editor',
+        name: 'EditorBook',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/MemberMangement/Editor',
-          name: 'Editor',
-          component: Editor
+        component: EditorBook
+      },
+      {
+        path: '/MemberMangement/Editor',
+        name: 'Editor',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/MemberWhereabouts/EditorWhereabouts',
-          name: 'EditorWhereabouts',
-          component: EditorWhereabouts
+        component: Editor
+      },
+      {
+        path: '/MemberWhereabouts/EditorWhereabouts',
+        name: 'EditorWhereabouts',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/ProjectManagement',
-          name: 'ProjectManagement',
-          component: ProjectManagement
+        component: EditorWhereabouts
+      },
+      {
+        path: '/ProjectManagement',
+        name: 'ProjectManagement',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/ProjectManagement/Editor',
-          name: 'EnditorProject',
-          component: EditorProject
+        component: ProjectManagement
+      },
+      {
+        path: '/ProjectManagement/Editor',
+        name: 'EnditorProject',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/BookManagement',
-          name: 'BookManagement',
-          component: BookManagement
+        component: EditorProject
+      },
+      {
+        path: '/BookManagement',
+        name: 'BookManagement',
+        meta: {
+          requiresAuth: true
         },
-        {
-          path: '/RentManagement',
-          name: 'RentManagement',
-          component: RentManagement
-        }
-      ]
-    }
+        component: BookManagement
+      },
+      {
+        path: '/RentManagement',
+        name: 'RentManagement',
+        meta: {
+          requiresAuth: true
+        },
+        component: RentManagement
+      }
+    ]
+  }
 
-  ]
+]
+
+// 页面刷新时，重新赋值有没登录
+if (window.sessionStorage.getItem('isLogin')) {
+  store.commit('setIsLogin', window.sessionStorage.getItem('isLogin'))
+}
+
+const router = new Router({
+  routes
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(r => r.meta.requiresAuth)) { // 判断该路由是否需要登录权限
+    console.log(store.getters.isLogin)
+    if (store.getters.isLogin) { // 通过vuex 如果当前有登录
+      next()
+    } else {
+      console.log('没有登录吖')
+      next({
+        path: '/',
+        query: {redirect: to.fullPath}
+      })
+    }
+  } else {
+    next()
+  }
+})
+
+export default router
