@@ -410,8 +410,7 @@
 <script>
   import FileSaver from 'file-saver'
   import XLSX from 'xlsx'
-
-  const COMPANYID = '1204695257@qq.com'
+  var COMPANYID = window.sessionStorage.getItem("companyId");
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {

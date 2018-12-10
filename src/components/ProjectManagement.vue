@@ -332,7 +332,8 @@
 </style>
 <script>
 
-  const COMPANYID = '1204695257@qq.com';
+  var COMPANYID = window.sessionStorage.getItem("companyId");
+  console.log(COMPANYID);
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {
@@ -545,6 +546,34 @@
       },
       handleDelete(index, row) {
         console.log(index, row);
+      },
+      //下载Excel模板(success)
+      uploadExcelTemplate() {
+        this.$confirm('是否下载模板？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info',
+        }).then(() => {
+          this.$axios.post(PREFIX+'download.do?name=member.xlsx', {
+          },{responseType:"arraybuffer"})
+            .then((response) => {
+              console.log(response);
+              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
+              var link = document.createElement('a');
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "导入数据模板.xlsx";
+              link.click();
+              console.log('下载模板成功');
+            })
+            .catch((error) => {
+              alert(error);
+            })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消下载'
+          });
+        });
       }
     }
   }

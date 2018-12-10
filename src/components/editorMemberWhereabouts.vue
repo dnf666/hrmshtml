@@ -75,7 +75,7 @@
 </style>
 <script>
 
-  const COMPANYID = '1204695257@qq.com'
+
   const PREFIX = 'http://localhost:8089/';
   export default {
    data() {

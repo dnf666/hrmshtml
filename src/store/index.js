@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import nav from './modules/nav'
 import login from './modules/login'
+import companyId from './modules/companyId'
 // import app from './modules/app';
 // import user from './modules/user';
 // import menu from './modules/menu';
@@ -13,7 +14,8 @@ const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
   modules: {
     nav,
-    login
+    login,
+    companyId
     // app,
     // user,
     // menu

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-  const PREFIX = 'http://113.250.153.23:8089';
+  const PREFIX = 'http://localhost:8089';
 export default {
   name: 'Login',
   data() {
@@ -49,8 +49,10 @@ export default {
           console.log('返回成功')
         // 触发setIsLogin方法改变vuex中isLogin的值，
           that.$store.commit('setIsLogin', true);
+          that.$store.commit('setCompanyId',this.email);
         // 改变localStorage中isLogin的值，
           window.sessionStorage.setItem('isLogin', true);
+          window.sessionStorage.setItem('companyId',this.email);
           that.$router.push({path: '/home'})
         }
         else {
