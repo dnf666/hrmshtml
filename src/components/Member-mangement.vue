@@ -60,7 +60,49 @@
               <span>
                 <h3>①准备信息</h3>
                 <p class="upload">使用数据模板文件,录入组织与成员信息。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100人</p>
+                <p     <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>
+            <el-button type="text" @click="dialogVisible = true">Excel导入</el-button>
+          </el-dropdown-item>
+          <el-dialog
+            title="导入信息"
+            :visible.sync="dialogVisible"
+            top='50px'
+            left='50px'
+            width="500px"
+            :append-to-body='true'
+            :before-close="handleClose">
+            <span>
+              <span>
+                <h3>①准备信息</h3>
+                <p class="upload">使用数据模板文件,录入组织与成员信息。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100人</p>
                 <p @click="uploadExcelTemplate" class="upload uploadMould">
+                  <i class="el-icon-download"></i>
+                  点击下载模板
+                </p>
+              </span>
+              <span>
+                <h3>②上传数据文件</h3>
+                <p class="upload">目前支持的文件类型为 *.xls, *.xlsx</p>
+                <a href="javascript:;" class="uploadExcel">
+                  <input type="file" multiple name="file"
+                         accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                         @change="getExcel($event)">
+                  添加文件
+                </a>
+                <div id='showExcelName'>{{ this.file.name }}</div>
+              </span>
+            </span>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="uploadExcel($event)">确 定</el-button>
+            </span>
+          </el-dialog>
+
+          <el-dropdown-item>
+            <el-button type="text" @click="downloadExcel">Excel导出</el-button>
+          </el-dropdown-item>
+        </el-dropdown-menu>@click="uploadExcelTemplate" class="upload uploadMould">
                   <i class="el-icon-download"></i>
                   点击下载模板
                 </p>
@@ -467,7 +509,6 @@
     created: function () {
       // 得到成员总数
       this.$axios.get(PREFIX + '/member/count.do', {
-        //todo 以后改为动态的
         params: {
           companyId: COMPANYID
         }
@@ -683,7 +724,7 @@
         let formData = new FormData();
         formData.append("file", this.file);
         console.log(formData);
-        this.$axios.post('http://192.168.43.243:8080/hrms/fromExcel.do', formData)
+        this.$axios.post(PREFIX+'/fromExcel.do', formData)
           .then((response) => {
             console.log('上传文件成功');
             this.dialogVisible = false;

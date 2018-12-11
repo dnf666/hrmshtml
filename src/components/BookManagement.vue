@@ -42,7 +42,7 @@
               <span>
                 <h3>①准备信息</h3>
                 <p class="upload">使用数据模板文件,录入数据。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100条数据。</p>
-                <p class="upload uploadMould">
+                <p @click="uploadExcelTemplate" class="upload uploadMould">
                   <i class="el-icon-download"></i>
                   点击下载模板
                 </p>
@@ -495,6 +495,34 @@
           alert(error);
 
         })
+      },
+      //下载Excel模板(success)
+      uploadExcelTemplate() {
+        this.$confirm('是否下载模板？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info',
+        }).then(() => {
+          this.$axios.post(PREFIX+'download.do?name=book.xlsx', {
+          },{responseType:"arraybuffer"})
+            .then((response) => {
+              console.log(response);
+              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
+              var link = document.createElement('a');
+              link.href = window.URL.createObjectURL(blob);
+              link.download = "导入数据模板.xlsx";
+              link.click();
+              console.log('下载模板成功');
+            })
+            .catch((error) => {
+              alert(error);
+            })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消下载'
+          });
+        });
       },
       filterBook() {
         let params = new URLSearchParams();

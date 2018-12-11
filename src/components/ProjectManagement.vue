@@ -23,58 +23,6 @@
             <el-button type="primary" @click="addDataSave">保存</el-button>
           </div>
         </el-dialog>
-
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>
-            <el-button type="text" @click="dialogVisible = true">Excel导入</el-button>
-          </el-dropdown-item>
-          <el-dialog
-            title="导入信息"
-            :visible.sync="dialogVisible"
-            top='50px'
-            left='50px'
-            width="500px"
-            :append-to-body='true'
-            :before-close="handleClose">
-            <span>
-              <span>
-                <h3>①准备信息</h3>
-                <p class="upload">使用数据模板文件,录入数据。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100条数据。</p>
-                <p class="upload uploadMould">
-                  <i class="el-icon-download"></i>
-                  点击下载模板
-                </p>
-              </span>
-              <span>
-                <h3>②上传数据文件</h3>
-                <p class="upload">目前支持的文件类型为 *.xls, *.xlsx</p>
-                <el-upload
-                  class="upload-demo"
-                  action="https://jsonplaceholder.typicode.com/posts/"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :before-remove="beforeRemove"
-                  multiple
-                  :limit="3"
-                  :on-exceed="handleExceed"
-                  :file-list="fileList">
-                  <el-button class="upFiles" type="primary" size="small" plain>
-                    <i class="el-icon-plus"></i>
-                    添加文件
-                  </el-button>
-                </el-upload>
-              </span>
-            </span>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-            </span>
-          </el-dialog>
-
-          <el-dropdown-item>
-            <el-button type="text" @click="dialogVisible = true">Excel导出</el-button>
-          </el-dropdown-item>
-        </el-dropdown-menu>
       </el-dropdown>
       <el-button
         type="danger"
@@ -554,7 +502,7 @@
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.post(PREFIX+'download.do?name=member.xlsx', {
+          this.$axios.post(PREFIX+'download.do?name=book.xlsx', {
           },{responseType:"arraybuffer"})
             .then((response) => {
               console.log(response);
