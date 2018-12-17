@@ -83,7 +83,7 @@
         @click.prevent='removeSelection()'
         :disabled="isDisabled"
       >
-        删除选中成员
+        删除选中图书
       </el-button>
       <el-button
         class="filterDown"

@@ -60,7 +60,7 @@
               <span>
                 <h3>①准备信息</h3>
                 <p class="upload">使用数据模板文件,录入组织与成员信息。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100人</p>
-                <p     <el-dropdown-menu slot="dropdown">
+                <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>
             <el-button type="text" @click="dialogVisible = true">Excel导入</el-button>
           </el-dropdown-item>
@@ -538,11 +538,11 @@
       // 获取当前页数及当前页面数据
       handleCurrentChange(currentPage) {
         this.currentPage = currentPage;
-        var params = new URLSearchParams();
+        let params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
         this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
-          companyId: this.newCompanyId
+          companyId: COMPANYID
         })
           .then((response) => {
             console.log('展示第' + this.currentPage + '页成员信息成功');
@@ -660,6 +660,7 @@
               } else {
                 this.sex = '女';
               }
+              this.dialogFormVisible = false;
               this.tableData.unshift({
                 companyId: this.newCompanyId,
                 num: this.newNum,
@@ -671,7 +672,6 @@
                 grade: this.newGrade,
                 phoneNumber: this.newPhoneNumber
               });
-              alert('添加成功');
             }
           })
           .catch((error) => {
@@ -690,7 +690,7 @@
         }
         this.$axios.post(PREFIX + '/member/filter.do?' + params.toString()
           , {
-            companyId: this.filterCompanyId,
+            companyId: COMPANYID,
             num: this.filterNum,
             name: this.filterName,
             sex: this.sex,

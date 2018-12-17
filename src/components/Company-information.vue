@@ -186,7 +186,9 @@ export default {
       }
     })
     .then( (response) => {
+      console.log(response.data.object);
       this.memberCount = response.data.object;
+      this.countIncreaseMember();
     })
     .catch( (error) => {
       console.log(error);
@@ -217,6 +219,7 @@ export default {
       this.projectCount = response.data.object;
       this.barNumber = response.data.object;
       this.progeressBar(this.barNumber);
+      this.countIncreaseProject();
     })
     .catch( (error) => {
       console.log (error);
@@ -228,10 +231,6 @@ export default {
     .then( (response) => {
       this.imageUrl = response.data.imageUrl;
     });
-  },
-  mounted () {
-    this.countIncreaseMember();
-    this.countIncreaseProject();
   },
   methods: {
     // 上传头像成功
@@ -328,7 +327,7 @@ export default {
           outline: this.companyOutline
       })
       .then((response) => {
-        dialogVisible = false;
+        this.dialogVisible = false;
         if (response.data.status != 0) {
           alert(response.data.message);
         }

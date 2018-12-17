@@ -350,7 +350,6 @@
           data[i] = obj;
         }
         _this.tableData = data;
-        console.log(data);
       }).catch(function (error) {
 
       })
@@ -453,6 +452,19 @@
       },
       handleCurrentChange: function (currentPage) {
         this.currentPage = currentPage;
+        let params = new URLSearchParams();
+        params.append('page', this.currentPage);
+        params.append('size', this.pagesize);
+        this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+          companyId: COMPANYID
+        })
+          .then((response) => {
+            console.log('展示第' + this.currentPage + '页项目信息成功');
+            this.tableData = response.data.object.data;
+          })
+          .catch((error) => {
+            alert(error);
+          });
       },
       handleChange(val) {
         console.log(val)
@@ -475,9 +487,7 @@
       handlePreview(file) {
         console.log(file)
       },
-      handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-      },
+
       beforeRemove(file, fileList) {
         return this.$confirm(`确定移除 ${file.name}？`)
       },
@@ -495,34 +505,6 @@
       handleDelete(index, row) {
         console.log(index, row);
       },
-      //下载Excel模板(success)
-      uploadExcelTemplate() {
-        this.$confirm('是否下载模板？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info',
-        }).then(() => {
-          this.$axios.post(PREFIX+'download.do?name=book.xlsx', {
-          },{responseType:"arraybuffer"})
-            .then((response) => {
-              console.log(response);
-              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
-              var link = document.createElement('a');
-              link.href = window.URL.createObjectURL(blob);
-              link.download = "导入数据模板.xlsx";
-              link.click();
-              console.log('下载模板成功');
-            })
-            .catch((error) => {
-              alert(error);
-            })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消下载'
-          });
-        });
-      }
     }
   }
 </script>
