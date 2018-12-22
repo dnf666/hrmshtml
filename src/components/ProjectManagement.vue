@@ -299,6 +299,7 @@
           onlineTime: '',
         }],
         value: '',
+        multipleSelection: [],
         dialogFormVisible: false,
         dialogVisible: false,
         editFormVisible: false,
@@ -479,7 +480,9 @@
         }
       },
       handleSelectionChange(val) {
-        this.multipleSelection = val
+        for (var i = 0; i < val.length; i++) {
+          this.multipleSelection[i] = val[i].projectId;
+        }
       },
       handleRemove(file, fileList) {
         console.log(file, fileList)
@@ -487,7 +490,42 @@
       handlePreview(file) {
         console.log(file)
       },
+//删除选中行数据(success)
+      removeSelection() {
+        this.$confirm('是否删除当前选中项目？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }).then(() => {
+          // todo 违反了rest原则。 但是现在又传不过去
+          console.log(this.multipleSelection);
+          this.$axios.post(PREFIX + '/project/delProjects.do?companyId='+COMPANYID, {
+             projectIds:this.multipleSelection,
+          })
+            .then((response) => {
+              console.log(response);
+              for (let i = 0; i < this.multipleSelection.length; i++) {
+                let val = this.multipleSelection;
+                val.forEach((val, index) => {
+                  this.tableData.forEach((v, i) => {
+                    if (val.projectId === v.projectId) {
+                      this.tableData.splice(i, 1);
+                    }
+                  })
+                })
+              }
+            })
+            .catch((error) => {
+              alert(error);
+            });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
 
+      },
       beforeRemove(file, fileList) {
         return this.$confirm(`确定移除 ${file.name}？`)
       },

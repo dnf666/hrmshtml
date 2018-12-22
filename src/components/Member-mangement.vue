@@ -60,49 +60,7 @@
               <span>
                 <h3>①准备信息</h3>
                 <p class="upload">使用数据模板文件,录入组织与成员信息。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100人</p>
-                <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>
-            <el-button type="text" @click="dialogVisible = true">Excel导入</el-button>
-          </el-dropdown-item>
-          <el-dialog
-            title="导入信息"
-            :visible.sync="dialogVisible"
-            top='50px'
-            left='50px'
-            width="500px"
-            :append-to-body='true'
-            :before-close="handleClose">
-            <span>
-              <span>
-                <h3>①准备信息</h3>
-                <p class="upload">使用数据模板文件,录入组织与成员信息。为了保证成功，请根据表格中批注的数据格式并按照字段顺序进行录入。一次最多导入100人</p>
                 <p @click="uploadExcelTemplate" class="upload uploadMould">
-                  <i class="el-icon-download"></i>
-                  点击下载模板
-                </p>
-              </span>
-              <span>
-                <h3>②上传数据文件</h3>
-                <p class="upload">目前支持的文件类型为 *.xls, *.xlsx</p>
-                <a href="javascript:;" class="uploadExcel">
-                  <input type="file" multiple name="file"
-                         accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                         @change="getExcel($event)">
-                  添加文件
-                </a>
-                <div id='showExcelName'>{{ this.file.name }}</div>
-              </span>
-            </span>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="uploadExcel($event)">确 定</el-button>
-            </span>
-          </el-dialog>
-
-          <el-dropdown-item>
-            <el-button type="text" @click="downloadExcel">Excel导出</el-button>
-          </el-dropdown-item>
-        </el-dropdown-menu>@click="uploadExcelTemplate" class="upload uploadMould">
                   <i class="el-icon-download"></i>
                   点击下载模板
                 </p>
@@ -457,7 +415,7 @@
   export default {
     data() {
       return {
-        memberCount: 20,
+        memberCount: 0,
         activeNames: ['1'],
         input10: '',
         show3: false,
@@ -472,7 +430,8 @@
           profession: '',
           department: '',
           grade: '',
-          phoneNumber: ''
+          phoneNumber: '',
+          whereAbout:''
         }],
         value: '',
         multipleSelection: [],
@@ -633,6 +592,7 @@
       },
       //添加单个成员信息(success)
       addMember() {
+        this.dialogFormVisible = false;
         if (this.radio == 0) {
           this.newSex = '男';
         } else {
@@ -660,9 +620,8 @@
               } else {
                 this.sex = '女';
               }
-              this.dialogFormVisible = false;
               this.tableData.unshift({
-                companyId: this.newCompanyId,
+                companyId: COMPANYID,
                 num: this.newNum,
                 name: this.newName,
                 email: this.newEmail,
@@ -709,9 +668,6 @@
             alert(error);
           });
       },
-      intoWhereAbout(object){
-        //todo 要添加一个弹框，并且
-      },
       //得到文件内容
       getExcel(event) {
         this.file = event.target.files[0];
@@ -738,28 +694,38 @@
       },
       //下载当前页面的数据到Excel表(success)
       downloadExcel() {
-        this.$confirm('是否下载当前页面数据？', '提示', {
+        this.$confirm('是否下载当前数据？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          let wb = XLSX.utils.table_to_book(document.querySelector('#out-table'));
-          // console.log(wb);
-          let wbout = XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'array'});
-          try {
-            FileSaver.saveAs(new Blob([wbout], {type: 'application/octet-stream'}), 'sheetjs.xlsx');
-          }
-          catch (e) {
-            if (typeof console !== 'undefined')
-              console.log(e, wbout)
-          }
-          return wbout
-        }).catch(() => {
+          this.$axios.post(PREFIX+'member/createExcel.do', {
+            companyId: COMPANYID,
+            num: this.filterNum,
+            name: this.filterName,
+            sex: this.sex,
+            email: this.filterEmail,
+            profession: this.filterProfession,
+            department: this.filterDepartment,
+            grade: this.filterGrade,
+            phoneNumber: this.filterPhoneNumber,
+            whereAbout:this.filterWhereAbout
+          },{responseType:"arraybuffer"})
+            .then((response) => {
+              console.log(response);
+              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
+              var link = document.createElement('a');
+              link.href = window.URL.createObjectURL(blob);
+              link.download = COMPANYID+"member.xls";
+              link.click();
+              this.dialogVisible = false;
+            }).catch(() => {
           this.$message({
             type: 'info',
             message: '已取消下载'
           });
         });
+      });
       },
       //下载Excel模板(success)
       uploadExcelTemplate() {
