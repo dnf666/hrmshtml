@@ -3,12 +3,9 @@ import Router from 'vue-router'
 import store from '../store/index'
 import CompanyInfo from '@/components/Company-information'
 import MemberMangement from '@/components/Member-mangement'
-import MemberWhereabouts from '@/components/Member-whereabouts'
 import Editor from '@/components/editorMember'
-import EditorWhereabouts from '@/components/editorMemberWhereabouts'
 import BookManagement from '@/components/BookManagement'
 import ProjectManagement from '@/components/ProjectManagement'
-import RentManagement from '@/components/RentManagement'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
 import Register from '@/components/Register'
@@ -74,14 +71,6 @@ const routes = [
         component: MemberMangement
       },
       {
-        path: '/MemberWhereabouts',
-        name: 'MemberWhereabouts',
-        meta: {
-          requiresAuth: true
-        },
-        component: MemberWhereabouts
-      },
-      {
         path: '/BookMangement/Editor',
         name: 'EditorBook',
         meta: {
@@ -96,14 +85,6 @@ const routes = [
           requiresAuth: true
         },
         component: Editor
-      },
-      {
-        path: '/MemberWhereabouts/EditorWhereabouts',
-        name: 'EditorWhereabouts',
-        meta: {
-          requiresAuth: true
-        },
-        component: EditorWhereabouts
       },
       {
         path: '/ProjectManagement',
@@ -129,14 +110,6 @@ const routes = [
         },
         component: BookManagement
       },
-      {
-        path: '/RentManagement',
-        name: 'RentManagement',
-        meta: {
-          requiresAuth: true
-        },
-        component: RentManagement
-      }
     ]
   }
 

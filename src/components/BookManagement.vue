@@ -7,7 +7,7 @@
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加图书
         <el-dialog title="添加图书" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
-          <el-form :model="form">
+          <el-form :model="tableData">
             <el-form-item label="图书名称" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="正确填写书名" v-model="addname"></el-input>
             </el-form-item>
@@ -74,7 +74,7 @@
           </el-dialog>
 
           <el-dropdown-item>
-            <el-button type="text" @click="dialogVisible = true">Excel导出</el-button>
+            <el-button type="text" @click="downloadExcel">Excel导出</el-button>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -349,6 +349,7 @@
         isDisabled: false,
         dialogFormVisible: false,
         dialogVisible: false,
+        formLabelWidth: '140px',
         //显示加载中样式
         loading: false,
         //搜索表单
@@ -395,6 +396,47 @@
     methods: {
       submitUpload() {
         this.$refs.upload.submit();
+      },
+      downloadExcel() {
+        this.$confirm('是否下载当前数据？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info',
+        }).then(() => {
+          let book = new Object;
+          if (this.filterBookId != '') {
+            book.bookId = this.filterBookId;
+          }
+          book.companyId = COMPANYID;
+          if (this.filterBookName != '') {
+            book.bookName = this.filterBookName;
+          }
+          if (this.filterCategory != '') {
+            book.category = this.filterCategory;
+          }
+          if (this.filterVersion != '') {
+            book.version = this.filterVersion;
+          }
+          if (this.quantity != '') {
+            book.quantity = parseInt(this.filterQuantity);
+          }
+          book.version = this.version;
+          this.$axios.post(PREFIX+'book/createExcel.do', book,{responseType:"arraybuffer"})
+            .then((response) => {
+              console.log(response);
+              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
+              var link = document.createElement('a');
+              link.href = window.URL.createObjectURL(blob);
+              link.download = COMPANYID+"book.xls";
+              link.click();
+              this.dialogVisible = false;
+            }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消下载'
+            });
+          });
+        });
       },
       addDataSave: function () {
         this.dialogFormVisible = false;
@@ -472,30 +514,7 @@
                 });
               }
             })
-            // .catch((error) => {
-            //   this.$message({
-            //     type: 'info',
-            //     message: error
-            //   });
-            // });
         },
-      editDataSave() {
-        this.editFormVisible = false;
-        var editData = new Object;
-        editData.bookId = this.bookId;
-        editData.companyId = COMPANYID;
-        editData.bookName = this.bookName;
-        editData.category = this.category;
-        editData.quantity = this.quantity;
-        editData.version = this.version;
-        this.$axios.put(PREFIX + '/hrms/book/book.do', editData)
-          .then((res) =>{
-            this.tableData = res.data.object;
-          }).catch(function (error) {
-          alert(error);
-
-        })
-      },
       //下载Excel模板(success)
       uploadExcelTemplate() {
         this.$confirm('是否下载模板？', '提示', {

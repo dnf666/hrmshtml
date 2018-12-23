@@ -66,15 +66,6 @@
                     </template>
                   </el-menu-item>
                 </router-link>
-                <!--todo 暂时弃用-->
-                <!--<router-link to="/RentManagement">-->
-                  <!--<el-menu-item index="/RentManagement">-->
-                    <!--<template slot="title">-->
-                      <!--<i class="el-icon-time"></i>-->
-                      <!--借阅管理-->
-                    <!--</template>-->
-                  <!--</el-menu-item>-->
-                <!--</router-link>-->
               </el-menu-item-group>
             </el-submenu>
           </el-tabs>
