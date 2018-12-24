@@ -135,7 +135,7 @@
         id='out-table'
         class="memberData"
         ref="multipleTable"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -184,6 +184,12 @@
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
+          prop="phoneNumber"
+          label="电话"
+          width="170"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
           prop="email"
           label="邮箱"
           width="170"
@@ -192,7 +198,7 @@
         <el-table-column
           prop="sex"
           label="性别"
-          width="70">
+          width="50">
         </el-table-column>
         <el-table-column
           prop="profession"
@@ -201,24 +207,19 @@
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
+          prop="grade"
+          label="年级"
+          width="80">
+        </el-table-column>
+        <el-table-column
           prop="department"
           label="部门"
           width="100"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
-          prop="grade"
-          label="年级"
-          width="80">
-        </el-table-column>
-        <el-table-column
           prop="whereAbout"
           label="签约"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          prop="phoneNumber"
-          label="电话"
           :show-overflow-tooltip="true">
         </el-table-column>
       </el-table>
@@ -229,8 +230,10 @@
         @current-change="handleCurrentChange"
         :current-page="currentPage"
         :page-size="pagesize"
-        layout="total, prev, pager, next, jumper"
-        :total="20">
+        :page-sizes="[5,7,10]"
+        @size-change="handleSizeChange"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="memberCount">
       </el-pagination>
     </div>
   </div>
@@ -410,6 +413,7 @@
 <script>
   import FileSaver from 'file-saver'
   import XLSX from 'xlsx'
+
   var COMPANYID = window.sessionStorage.getItem("companyId");
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
@@ -431,7 +435,7 @@
           department: '',
           grade: '',
           phoneNumber: '',
-          whereAbout:''
+          whereAbout: ''
         }],
         value: '',
         multipleSelection: [],
@@ -449,7 +453,7 @@
         filterProfession: '',
         filterDepartment: '',
         filterGrade: '',
-        filterWhereAbout:'',
+        filterWhereAbout: '',
         newCompanyId: '',
         newNum: '',
         newName: '',
@@ -459,7 +463,7 @@
         newDepartment: '',
         newGrade: '',
         newPhoneNumber: '',
-        newWhereAbout:'',
+        newWhereAbout: '',
         file: '',
         excelPath: ''
       }
@@ -486,7 +490,7 @@
         companyId: COMPANYID
       })
         .then((response) => {
-          console.log('展示所有成员信息成功');
+          console.log(response);
           this.tableData = response.data.object.data;
         })
         .catch((error) => {
@@ -504,6 +508,7 @@
           companyId: COMPANYID
         })
           .then((response) => {
+            console.log(response);
             console.log('展示第' + this.currentPage + '页成员信息成功');
             this.tableData = response.data.object.data;
           })
@@ -519,6 +524,9 @@
         } else {
           this.$refs.multipleTable.clearSelection()
         }
+      },
+      handleSizeChange: function (size) {
+        this.pagesize = size;
       },
       //获得选中的一行数据
       handleSelectionChange(val) {
@@ -537,8 +545,8 @@
       //删除单个成员信息()
       deleteMember(num) {
         // todo 违反了rest原则。 但是现在又传不过去
-        this.$axios.post(PREFIX + '/member/delMember.do?companyId='+COMPANYID, {
-            num:num
+        this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
+          num: num
         })
           .then((response) => {
             console.log(response.data.message);
@@ -563,8 +571,8 @@
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
           console.log(this.multipleSelection);
-          this.$axios.post(PREFIX + '/member/delMember.do?companyId='+COMPANYID, {
-              num: this.multipleSelection.toString()
+          this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
+            num: this.multipleSelection.toString()
           })
             .then((response) => {
               console.log(response);
@@ -610,28 +618,30 @@
           department: this.newDepartment,
           phoneNumber: this.newPhoneNumber,
           profession: this.newProfession,
-          whereAbout:this.newWhereAbout
+          whereAbout: this.newWhereAbout
 
         })
           .then((response) => {
-            if (response.data.status == 0) {
-              if (this.radio == '0') {
-                this.sex = '男';
-              } else {
-                this.sex = '女';
-              }
-              this.tableData.unshift({
-                companyId: COMPANYID,
-                num: this.newNum,
-                name: this.newName,
-                email: this.newEmail,
-                sex: this.newSex,
-                profession: this.newProfession,
-                department: this.newDepartment,
-                grade: this.newGrade,
-                phoneNumber: this.newPhoneNumber
-              });
-            }
+            // if (response.data.status == 0) {
+              // if (this.radio == '0') {
+              //   this.sex = '男';
+              // } else {
+              //   this.sex = '女';
+              // }
+              //   this.tableData.unshift({
+              //     companyId: COMPANYID,
+              //     num: this.newNum,
+              //     name: this.newName,
+              //     email: this.newEmail,
+              //     sex: this.newSex,
+              //     profession: this.newProfession,
+              //     department: this.newDepartment,
+              //     grade: this.newGrade,
+              //     phoneNumber: this.newPhoneNumber
+              //   });
+              // }
+              window.location.reload();
+            // }
           })
           .catch((error) => {
             alert(error);
@@ -658,7 +668,7 @@
             department: this.filterDepartment,
             grade: this.filterGrade,
             phoneNumber: this.filterPhoneNumber,
-            whereAbout:this.filterWhereAbout
+            whereAbout: this.filterWhereAbout
           })
           .then((response) => {
             console.log('根据条件查询成功');
@@ -679,10 +689,10 @@
         event.preventDefault();
         let formData = new FormData();
         formData.append("file", this.file);
+        formData.append("companyId",COMPANYID);
         console.log(formData);
-        this.$axios.post(PREFIX+'/fromExcel.do', formData)
+        this.$axios.post(PREFIX + 'member/excel.do', formData)
           .then((response) => {
-            console.log('上传文件成功');
             this.dialogVisible = false;
             // window.location.reload();
           })
@@ -699,7 +709,7 @@
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.post(PREFIX+'member/createExcel.do', {
+          this.$axios.post(PREFIX + 'member/createExcel.do', {
             companyId: COMPANYID,
             num: this.filterNum,
             name: this.filterName,
@@ -709,23 +719,23 @@
             department: this.filterDepartment,
             grade: this.filterGrade,
             phoneNumber: this.filterPhoneNumber,
-            whereAbout:this.filterWhereAbout
-          },{responseType:"arraybuffer"})
+            whereAbout: this.filterWhereAbout
+          }, {responseType: "arraybuffer"})
             .then((response) => {
               console.log(response);
               let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
               var link = document.createElement('a');
               link.href = window.URL.createObjectURL(blob);
-              link.download = COMPANYID+"member.xls";
+              link.download = COMPANYID + "member.xls";
               link.click();
               this.dialogVisible = false;
             }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消下载'
+            this.$message({
+              type: 'info',
+              message: '已取消下载'
+            });
           });
         });
-      });
       },
       //下载Excel模板(success)
       uploadExcelTemplate() {
@@ -734,8 +744,7 @@
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.post(PREFIX+'download.do?name=member.xlsx', {
-          },{responseType:"arraybuffer"})
+          this.$axios.post(PREFIX + 'download.do?name=member.xlsx', {}, {responseType: "arraybuffer"})
             .then((response) => {
               console.log(response);
               let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});

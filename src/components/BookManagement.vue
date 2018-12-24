@@ -50,26 +50,18 @@
               <span>
                 <h3>②上传数据文件</h3>
                 <p class="upload">目前支持的文件类型为 *.xls, *.xlsx</p>
-                <el-upload
-                  class="upload-demo"
-                  action="http://localhost:8080/hrms/hrms/{tableTitle}/fromExcel"
-                  :on-preview="handlePreview"
-                  :on-remove="handleRemove"
-                  :before-remove="beforeRemove"
-                  multiple
-                  :limit="3"
-                  :on-exceed="handleExceed"
-                  :file-list="fileList">
-                  <el-button class="upFiles" type="primary" size="small" plain>
-                    <i class="el-icon-plus"></i>
-                    添加文件
-                  </el-button>
-                </el-upload>
+                <a href="javascript:;" class="uploadExcel">
+                  <input type="file" multiple name="file"
+                         accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                         @change="getExcel($event)">
+                  添加文件
+                </a>
+                <div id='showExcelName'>{{ this.file.name }}</div>
               </span>
             </span>
             <span slot="footer" class="dialog-footer">
               <el-button @click="dialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="submitUpload">确 定</el-button>
+              <el-button type="primary" @click="uploadExcel($event)">确 定</el-button>
             </span>
           </el-dialog>
 
@@ -91,7 +83,7 @@
       >过滤
       </el-button>
       <span id='state'>
-        (共有 {{tableData.length}} 本书)
+        (共有 {{bookCount}} 本书)
       </span>
       <div style="margin-top: 10px;">
         <el-collapse-transition>
@@ -114,7 +106,7 @@
         id='out-table'
         class="bookData"
         ref="multipleTable"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -190,7 +182,7 @@
         :page-sizes="[5,7,10]"
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length">
+        :total="bookCount">
       </el-pagination>
     </div>
   </div>
@@ -331,6 +323,7 @@
   export default {
     data() {
       return {
+        bookCount:0,
         activeNames: ['1'],
         input10: '',
         show3: false,
@@ -377,7 +370,8 @@
         filterBookName: '',
         filterCategory: '',
         filterQuantity: '',
-        filterVersion: ''
+        filterVersion: '',
+        file:''
 
       }
     },
@@ -389,13 +383,49 @@
         companyId: COMPANYID
       }).then((res) => {
         this.tableData = res.data.object.data;
+        this.bookCount = res.data.object.recordSize;
       }).catch(function (error) {
 
       })
     },
     methods: {
-      submitUpload() {
-        this.$refs.upload.submit();
+      handleCurrentChange(currentPage) {
+        this.currentPage = currentPage;
+        let params = new URLSearchParams();
+        params.append('currentPage', this.currentPage);
+        params.append('size', this.pagesize);
+        this.$axios.post(PREFIX + '/book/filter.do?' + params.toString(), {
+          companyId: COMPANYID
+        })
+          .then((response) => {
+            this.tableData = response.data.object.data;
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      },
+      getExcel(event) {
+        this.file = event.target.files[0];
+        console.log(this.file);
+      },
+      //上传Excel表到数据库(success)
+      uploadExcel(event) {
+        //阻止元素发生默认行为
+        event.preventDefault();
+        let formData = new FormData();
+        formData.append("file", this.file);
+        formData.append("companyId",COMPANYID);
+        console.log(formData);
+        this.$axios.post(PREFIX + 'book/excel.do', formData)
+          .then((response) => {
+            this.dialogVisible = false;
+            // window.location.reload();
+          })
+          .catch((error) => {
+            console.log('上传文件失败');
+            alert(error);
+            // window.location.reload();
+          })
       },
       downloadExcel() {
         this.$confirm('是否下载当前数据？', '提示', {
@@ -465,9 +495,6 @@
       },
       handleSizeChange: function (size) {
         this.pagesize = size;
-      },
-      handleCurrentChange: function (currentPage) {
-        this.currentPage = currentPage;
       },
       handleChange(val) {
         console.log(val)
@@ -567,6 +594,7 @@
         book.version = this.version;
         this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book).then((response => {
           this.tableData = response.data.object.data;
+          this.bookCount = response.data.object.reordSize;
         }))
       }
     }
