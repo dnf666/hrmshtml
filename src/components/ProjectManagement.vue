@@ -3,7 +3,7 @@
     <router-view/>
     <div class="top">项目管理</div>
     <div class="contentP">
-      <p>信管工作室</p>
+      <p>{{this.companyName}}</p>
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加项目
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
@@ -286,6 +286,7 @@
   export default {
     data() {
       return {
+        companyName:'',
         activeNames: ['1'],
         input10: '',
         show3: false,
@@ -339,6 +340,14 @@
       var params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
+      this.$axios.get(PREFIX + '/company/company.do', {
+        params: {
+          email: COMPANYID
+        }
+      })
+        .then((response) => {
+          this.companyName = response.data.object.name;
+        });
       this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
         companyId: COMPANYID
       }).then(function (res) {
@@ -498,7 +507,6 @@
           type: 'warning',
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
-          console.log(this.multipleSelection);
           this.$axios.post(PREFIX + '/project/delProjects.do?companyId='+COMPANYID, {
              projectIds:this.multipleSelection,
           })

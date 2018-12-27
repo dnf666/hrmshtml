@@ -3,7 +3,7 @@
     <router-view/>
     <div class="top">成员管理</div>
     <div class="contentm">
-      <p>信管工作室</p>
+      <p>{{this.companyName}}</p>
       <!-- 添加成员 -->
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加成员
@@ -419,6 +419,7 @@
   export default {
     data() {
       return {
+        companyName: '',
         memberCount: 0,
         activeNames: ['1'],
         input10: '',
@@ -481,6 +482,14 @@
         })
         .catch((error) => {
           alert(error);
+        });
+      this.$axios.get(PREFIX + '/company/company.do', {
+        params: {
+          email: COMPANYID
+        }
+      })
+        .then((response) => {
+          this.companyName = response.data.object.name;
         });
       // 得到当前页面成员列表
       var params = new URLSearchParams();
@@ -623,24 +632,24 @@
         })
           .then((response) => {
             // if (response.data.status == 0) {
-              // if (this.radio == '0') {
-              //   this.sex = '男';
-              // } else {
-              //   this.sex = '女';
-              // }
-              //   this.tableData.unshift({
-              //     companyId: COMPANYID,
-              //     num: this.newNum,
-              //     name: this.newName,
-              //     email: this.newEmail,
-              //     sex: this.newSex,
-              //     profession: this.newProfession,
-              //     department: this.newDepartment,
-              //     grade: this.newGrade,
-              //     phoneNumber: this.newPhoneNumber
-              //   });
-              // }
-              window.location.reload();
+            // if (this.radio == '0') {
+            //   this.sex = '男';
+            // } else {
+            //   this.sex = '女';
+            // }
+            //   this.tableData.unshift({
+            //     companyId: COMPANYID,
+            //     num: this.newNum,
+            //     name: this.newName,
+            //     email: this.newEmail,
+            //     sex: this.newSex,
+            //     profession: this.newProfession,
+            //     department: this.newDepartment,
+            //     grade: this.newGrade,
+            //     phoneNumber: this.newPhoneNumber
+            //   });
+            // }
+            window.location.reload();
             // }
           })
           .catch((error) => {
@@ -689,7 +698,7 @@
         event.preventDefault();
         let formData = new FormData();
         formData.append("file", this.file);
-        formData.append("companyId",COMPANYID);
+        formData.append("companyId", COMPANYID);
         console.log(formData);
         this.$axios.post(PREFIX + 'member/excel.do', formData)
           .then((response) => {

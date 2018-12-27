@@ -3,7 +3,7 @@
     <router-view/>
     <div class="top">图书管理</div>
     <div class="contentB">
-      <p>信管工作室</p>
+      <p>{{this.companyName}}</p>
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加图书
         <el-dialog title="添加图书" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
@@ -155,12 +155,6 @@
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
-          prop="version"
-          label="图书版本"
-          width="170"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
           prop="category"
           label="类型"
           width="170">
@@ -171,6 +165,13 @@
           width="300"
           :show-overflow-tooltip="true">
         </el-table-column>
+        <el-table-column
+          prop="version"
+          label="图书版本"
+          width="170"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+
       </el-table>
 
       <el-pagination
@@ -323,6 +324,7 @@
   export default {
     data() {
       return {
+        companyName:'',
         bookCount:0,
         activeNames: ['1'],
         input10: '',
@@ -376,6 +378,14 @@
       }
     },
     created: function () {
+      this.$axios.get(PREFIX + '/company/company.do', {
+        params: {
+          email: COMPANYID
+        }
+      })
+        .then((response) => {
+          this.companyName = response.data.object.name;
+        });
       let params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
@@ -389,6 +399,33 @@
       })
     },
     methods: {
+      removeSelection() {
+        this.$confirm('是否删除当前选中项目？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }).then(() => {
+          // todo 违反了rest原则。 但是现在又传不过去
+          console.log(this.multipleSelection);
+          this.$axios.post(PREFIX + '/book/delBook.do', {
+            bookId:this.multipleSelection.toString(),
+            companyId:COMPANYID
+          })
+            .then((response) => {
+              console.log(response);
+              window.location.reload();
+            })
+            .catch((error) => {
+              alert(error);
+            });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+      },
       handleCurrentChange(currentPage) {
         this.currentPage = currentPage;
         let params = new URLSearchParams();
@@ -509,7 +546,9 @@
         }
       },
       handleSelectionChange(val) {
-        this.multipleSelection = val
+        for (var i = 0; i < val.length; i++) {
+          this.multipleSelection[i] = val[i].bookId;
+        }
       },
       handleRemove(file, fileList) {
         console.log(file, fileList)

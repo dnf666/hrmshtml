@@ -19,8 +19,6 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
               <img title="点击修改头像" src="./../assets/images/logo.png" class="avatar logo">
-              <!-- v-if="imageUrl" -->
-              <!-- :src="imageUrl" -->
             </el-upload>
             <p>{{ this.companyName }}</p>
           </div>
@@ -143,7 +141,9 @@
   }
   .content p{
     padding-left: 78px;
-    color: #878c87;
+    font-size: 16px;
+    color: #999ca1;
+    word-break: break-all;
   }
 </style>
 

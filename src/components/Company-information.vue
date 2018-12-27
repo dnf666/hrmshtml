@@ -1,9 +1,11 @@
 <template>
 <div>
   <router-view/>
-  <div class="top">主页</div>
+  <div class="top">
   <div class="top1">
     <div class="companyInfo">
+      <span class="cname">{{this.companyName}}</span>
+<br/>
       <a title="点击修改公司简介"  @click="dialogVisible = true">
         <span>公司简介:</span><span>{{ this.companyOutline }}</span>
       </a>
@@ -23,7 +25,7 @@
         </span>
       </el-dialog>
     </div>
-  </div>
+  </div></div>
   <div class="mainInfo">
     <!-- 公司成员 -->
     <div class="companyMember">
@@ -56,10 +58,21 @@
   margin:0;
   padding:0;
 }
+.top {
+  font-size: 19px;
+  line-height: 180px;
+  padding-left: 20px;
+  background-color: #fafafa;
+}
 .top1 {
   font-size: 15px;
   line-height: 70px;
   padding-left: 30px;
+}
+.cname {
+  font-size: 20px;
+  color: #535e6c;
+  margin-bottom: 20px;
 }
 .logo{
   height:110px;
@@ -71,7 +84,7 @@
 }
 .companyInfo{
   display: inline-block;
-  margin-left: 60px;
+  margin-left: 150px;
   line-height: 40px;
   margin-top: 80px;
 }
@@ -116,7 +129,7 @@
   box-shadow:0px -2px 5px 0px #e6e6e6,-2px 0px 5px 0px #e6e6e6,
   2px 0px 5px 0px #e6e6e6,0px 2px 5px 0px #e6e6e6;
   position: absolute;
-  top: 240px;
+  top: 218px;
 }
 .mainInfo div{
     font-size: 15px;
@@ -186,7 +199,6 @@ export default {
       }
     })
     .then( (response) => {
-      console.log(response.data.object);
       this.memberCount = response.data.object;
       this.countIncreaseMember();
     })
@@ -337,6 +349,5 @@ export default {
       });
     }
   },
-  global
 }
 </script>
