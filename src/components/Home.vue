@@ -14,11 +14,12 @@
           <div class="content">
             <el-upload
               class="avatar-uploader"
-              action="http://localhost:8089/hrms/index/photo.do"
+              action=""
+              accept=".jpg,.jpeg,.png,.gif,.bmp,.pdf,.JPG,.JPEG,.PBG,.GIF,.BMP,.PDF"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload">
-              <img title="点击修改头像" src="./../assets/images/logo.png" class="avatar logo">
+              <img title="点击修改头像" :src="imageUrl" class="avatar logo">
             </el-upload>
             <p>{{ this.companyName }}</p>
           </div>
@@ -150,72 +151,80 @@
 <script>
   var COMPANYID = window.sessionStorage.getItem("companyId");
   const PREFIX = 'http://localhost:8089/hrms';
-  const DEFAULT_PHOTO = './../assets/images/logo.png';
+  const DEFAULT_PHOTO = PREFIX+'/photo/logo.png';
   export default {
-  data () {
-    return {
-      menuDefault: 1,
-      imageUrl: '',
-      isCollapse: false,
-      dialogFormVisible: false,
-      formLabelWidth: '140px',
-      companyName: '',
-      companyId: '',
-      newCompanyId: '',  //修改的公司邮箱（下列new开头的同理）
-      newCompanyName: '',
-      newApplicantName: '',
-      newOrganizationSize: '',
-      newMainCategory: '',
-      newViceCategory: '',
-      newPassword: ''
-    }
-  },
-  // 得到公司头像
-  created () {
-    this.$axios.get(PREFIX+'/index/index.do',{
-      params: {
-        companyId: COMPANYID
+    data() {
+      return {
+        menuDefault: 1,
+        imageUrl: '',
+        isCollapse: false,
+        dialogFormVisible: false,
+        formLabelWidth: '140px',
+        companyName: '',
+        companyId: '',
+        newCompanyId: '',  //修改的公司邮箱（下列new开头的同理）
+        newCompanyName: '',
+        newApplicantName: '',
+        newOrganizationSize: '',
+        newMainCategory: '',
+        newViceCategory: '',
+        newPassword: ''
       }
-    })
-    .then( (response) => {
-      var photoPath = response.data.photoPath;
-      if(photoPath == null){
-        this.imageUrl = DEFAULT_PHOTO;
-      }else {
-        this.imageUrl = photoPath;
-      }
-    });
-      this.$axios.get(PREFIX+'/company/company.do',{
+    },
+    // 得到公司头像
+    created() {
+      this.$axios.get(PREFIX + '/index/index.do', {
+        params: {
+          companyId: COMPANYID
+        }
+      })
+        .then((response) => {
+          console.log(response);
+          var photoPath = response.data.object.photoPath;
+          if (photoPath == null) {
+            this.imageUrl = DEFAULT_PHOTO;
+          } else {
+            this.imageUrl = PREFIX + photoPath;
+          }
+        });
+      this.$axios.get(PREFIX + '/company/company.do', {
         params: {
           email: COMPANYID
         }
-      }).then( (response) => {
-          this.companyName = response.data.object.name;
-        });
-  },
-  methods: {
-    // 上传头像成功
-    sendPhoto(file){
-      this.$axios.post(PREFIX+'/index/photo.do',file).then((response)=>{
-        console.log(response);
-      })
+      }).then((response) => {
+        this.companyName = response.data.object.name;
+      });
     },
-    handleAvatarSuccess(res, file) {
-      console.log(response);
-      this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    // 判断上传头像的格式和大小
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
-    },
+    methods: {
+      // 上传头像成功
+      sendPhoto(file) {
+        this.$axios.post(PREFIX + '/index/photo.do', file).then((response) => {
+          console.log(response);
+        })
+      },
+      handleAvatarSuccess(res, file) {
+        this.imageUrl = URL.createObjectURL(file.raw);
+      },
+      // 判断上传头像的格式和大小
+      beforeAvatarUpload(file) {
+        //   const isJPG = file.type === 'image/jpeg';
+        //   const isLt2M = file.size / 1024 / 1024 < 2;
+        //   if (!isJPG) {
+        //     this.$message.error('上传头像图片只能是 JPG 格式!');
+        //   }
+        //   if (!isLt2M) {
+        //     this.$message.error('上传头像图片大小不能超过 2MB!');
+        //   }
+        //   return isJPG && isLt2M;
+        // },
+        let formData = new FormData();
+        formData.append("file", file);
+        formData.append("companyId", COMPANYID);
+        this.$axios.post(PREFIX + '/index/photo.do', formData).then((response) => {
+          console.log(response);
+        })
+        return null;
+      },
+    }
   }
-}
 </script>

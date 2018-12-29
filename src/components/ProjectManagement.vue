@@ -57,7 +57,7 @@
       <el-table
         class="projectData"
         ref="multipleTable"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
         @selection-change="handleSelectionChange">
@@ -109,6 +109,12 @@
         <el-table-column
           prop="onlineTime"
           label="上线时间"
+          width="250"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态"
           width="250"
           :show-overflow-tooltip="true">
         </el-table-column>
@@ -298,7 +304,9 @@
           projectUrl: '',
           projectName: '',
           onlineTime: '',
+          status:'',
         }],
+        urlList:[],
         value: '',
         multipleSelection: [],
         dialogFormVisible: false,
@@ -330,7 +338,7 @@
         filterProjectId: '',
         filterProjectName: '',
         filterProjectUrl: '',
-        filterOnlineTime: ''
+        filterOnlineTime: '',
 
       }
     },
@@ -344,24 +352,36 @@
         params: {
           email: COMPANYID
         }
-      })
-        .then((response) => {
+      }).then((response) => {
           this.companyName = response.data.object.name;
         });
       this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
         companyId: COMPANYID
-      }).then(function (res) {
+      }).then((res)=> {
         for (let i = 0; i < res.data.object.data.length; i++) {
-          var obj = {};
+          let obj = {};
           obj.projectId = res.data.object.data[i].projectId;
           obj.projectName = res.data.object.data[i].projectName;
           obj.projectUrl = res.data.object.data[i].projectUrl;
+          obj.status = res.data.object.data[i].status;
           obj.onlineTime = res.data.object.data[i].onlineTime;
           data[i] = obj;
         }
         _this.tableData = data;
-      }).catch(function (error) {
-
+      });
+      setInterval(()=>{
+       this.getFilterProjectInfo();
+        // this.$axios.post(PREFIX+"project/heart.do",{
+        //     projectUrls:JSON.stringify(this.urlList)
+        // }).then((res)=>{
+        //   //todo 这样性能更高，但是正确吗
+        //   let list = res.data.object;
+        //   for (let i = 0;i < list.length;i++) {
+        //     this.tableData[i].status = list[i].status;
+        //   }
+        // })
+      },20000).catch(function (error) {
+        console.log(error);
       })
     },
     methods: {
@@ -374,7 +394,12 @@
           onlineTime: this.addOnlineTime
         })
           .then((res) => {
-            //todo 从后端查询
+            if ( res.data.code == 0){
+              this.$message({
+                type: 'info',
+                message: '添加成功!'
+              });
+            }
           }).catch(function (error) {
           alert(error);
         })
@@ -391,7 +416,6 @@
           onlineTime: this.filterOnlineTime
         })
           .then((response) => {
-            console.log('根据条件查询成功');
             this.tableData = response.data.object.data;
           })
           .catch((error) => {
@@ -419,7 +443,6 @@
               data[i] = obj;
             }
             _this.tableData = data;
-            console.log(data);
           }).catch(function (error) {
 
         })
@@ -476,9 +499,6 @@
             alert(error);
           });
       },
-      handleChange(val) {
-        console.log(val)
-      },
       toggleSelection(rows) {
         if (rows) {
           rows.forEach(row => {
@@ -492,12 +512,6 @@
         for (var i = 0; i < val.length; i++) {
           this.multipleSelection[i] = val[i].projectId;
         }
-      },
-      handleRemove(file, fileList) {
-        console.log(file, fileList)
-      },
-      handlePreview(file) {
-        console.log(file)
       },
 //删除选中行数据(success)
       removeSelection() {

@@ -759,7 +759,7 @@
               let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
               var link = document.createElement('a');
               link.href = window.URL.createObjectURL(blob);
-              link.download = "导入数据模板.xlsx";
+              link.download = "member.xlsx";
               link.click();
               console.log('下载模板成功');
             })
