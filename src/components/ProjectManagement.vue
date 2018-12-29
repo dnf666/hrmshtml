@@ -371,16 +371,7 @@
       });
       setInterval(()=>{
        this.getFilterProjectInfo();
-        // this.$axios.post(PREFIX+"project/heart.do",{
-        //     projectUrls:JSON.stringify(this.urlList)
-        // }).then((res)=>{
-        //   //todo 这样性能更高，但是正确吗
-        //   let list = res.data.object;
-        //   for (let i = 0;i < list.length;i++) {
-        //     this.tableData[i].status = list[i].status;
-        //   }
-        // })
-      },20000).catch(function (error) {
+      },60000).catch(function (error) {
         console.log(error);
       })
     },
