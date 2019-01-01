@@ -7,7 +7,7 @@
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加项目
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
-          <el-form :model="form">
+          <el-form>
             <el-form-item label="项目名称" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="正确填写项目名" v-model="addProjectName"></el-input>
             </el-form-item>
@@ -37,12 +37,11 @@
       >过滤
       </el-button>
       <span id='state'>
-        (共有 {{tableData.length}} 个项目)
+        ({{projectCount}}个项目)
       </span>
       <div style="margin-top: 10px;">
         <el-collapse-transition>
           <div v-show="show3">
-            <!-- <div class="transition-box">el-collapse-transition</div> -->
             <div class="transition-box">
               <span>项目编号：<el-input class="filter" v-model="filterProjectId"></el-input></span>
               <span>项目名称：<el-input class="filter" v-model="filterProjectName"></el-input></span>
@@ -128,27 +127,8 @@
         :page-sizes="[5,7,10]"
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length">
+        :total="projectCount">
       </el-pagination>
-
-      <el-dialog title="编辑项目" :visible.sync="editFormVisible" :append-to-body='true' top='100px' width="550px" center>
-        <el-form>
-          <el-form-item label="项目名称" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该项目更改名称" v-model="projectName"></el-input>
-          </el-form-item>
-          <el-form-item label="项目地址" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该项目更改地址" v-model="projectUrl"></el-input>
-          </el-form-item>
-          <el-form-item label="上线时间" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="为该项目更改上线时间" v-model="onlineTime"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="editFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="editDataSave">保存</el-button>
-        </div>
-      </el-dialog>
-
     </div>
   </div>
 </template>
@@ -287,14 +267,12 @@
 <script>
 
   var COMPANYID = window.sessionStorage.getItem("companyId");
-  console.log(COMPANYID);
   const PREFIX = 'http://localhost:8089/hrms/';
   export default {
     data() {
       return {
-        companyName:'',
-        activeNames: ['1'],
-        input10: '',
+        companyName: '',
+        projectCount: 0,
         show3: false,
         currentPage: 1,
         pagesize: 10,
@@ -304,24 +282,13 @@
           projectUrl: '',
           projectName: '',
           onlineTime: '',
-          status:'',
+          status: '',
         }],
-        urlList:[],
-        value: '',
         multipleSelection: [],
         dialogFormVisible: false,
         dialogVisible: false,
         editFormVisible: false,
-        form: {
-          email: '',
-          studentId: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
-        },
         formLabelWidth: '140px',
-        radio: '1',
         checked: true,
         addCompanyId: '',
         addProjectId: '',
@@ -343,9 +310,7 @@
       }
     },
     created: function () {
-      var data = [];
-      let _this = this;
-      var params = new URLSearchParams();
+      let params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);
       this.$axios.get(PREFIX + '/company/company.do', {
@@ -353,27 +318,14 @@
           email: COMPANYID
         }
       }).then((response) => {
-          this.companyName = response.data.object.name;
-        });
+        this.companyName = response.data.object.name;
+      });
       this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
         companyId: COMPANYID
-      }).then((res)=> {
-        for (let i = 0; i < res.data.object.data.length; i++) {
-          let obj = {};
-          obj.projectId = res.data.object.data[i].projectId;
-          obj.projectName = res.data.object.data[i].projectName;
-          obj.projectUrl = res.data.object.data[i].projectUrl;
-          obj.status = res.data.object.data[i].status;
-          obj.onlineTime = res.data.object.data[i].onlineTime;
-          data[i] = obj;
-        }
-        _this.tableData = data;
+      }).then((res) => {
+        this.tableData = res.data.object.data;
+        this.projectCount = res.data.object.recordSize;
       });
-      setInterval(()=>{
-       this.getFilterProjectInfo();
-      },60000).catch(function (error) {
-        console.log(error);
-      })
     },
     methods: {
       addDataSave: function () {
@@ -385,19 +337,20 @@
           onlineTime: this.addOnlineTime
         })
           .then((res) => {
-            if ( res.data.code == 0){
+            if (res.data.code == 1) {
               this.$message({
                 type: 'info',
                 message: '添加成功!'
               });
+              window.location.reload();
             }
           }).catch(function (error) {
           alert(error);
         })
       },
       getFilterProjectInfo() {
-        var params = new URLSearchParams();
-        params.append('page', this.currentPage);
+        let params = new URLSearchParams();
+        params.append('currentPage', this.currentPage);
         params.append('size', this.pagesize);
         this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
           companyId: COMPANYID,
@@ -405,41 +358,14 @@
           projectName: this.filterProjectName,
           projectUrl: this.filterProjectUrl,
           onlineTime: this.filterOnlineTime
-        })
-          .then((response) => {
+        }).then((response) => {
             this.tableData = response.data.object.data;
-          })
-          .catch((error) => {
+            this.projectCount = response.data.object.recordSize;
+          }).catch((error) => {
             alert(error);
           });
       },
-      editDataSave() {
-        this.editFormVisible = false;
-        var data = [];
-        let _this = this;
-        var editData = new Object;
-        editData.companyId = COMPANYID;
-        editData.projectId = this.projectId;
-        editData.projectName = this.projectName;
-        editData.projectUrl = this.projectUrl;
-        editData.onlineTime = this.onlineTime;
-        this.$axios.put(PREFIX + 'project/project.do', editData)
-          .then(function (res) {
-            for (let i = 0; i < res.data.object.length; i++) {
-              var obj = {};
-              obj.projectId = res.data.object[i].projectId;
-              obj.projectName = res.data.object[i].projectName;
-              obj.projectUrl = res.data.object[i].projectUrl;
-              obj.onlineTime = res.data.object[i].onlineTime;
-              data[i] = obj;
-            }
-            _this.tableData = data;
-          }).catch(function (error) {
-
-        })
-      },
       deleteRow(index) {
-        console.log(index);
         let data = index;
         this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -452,12 +378,11 @@
           }).then((response) => {
             if (response.data.code == 1) {
               for (let i = 0; i < this.tableData.length; i++) {
-                this.tableData.forEach((v, i) => {
-                  if (v.projectId === index) {
-                    this.tableData.splice(i, 1);
-                  }
-                })
+                if (data === this.tableData[i].projectId) {
+                  this.tableData.splice(i, 1);
+                }
               }
+              this.projectCount--;
               this.$message({
                 type: 'info',
                 message: '删除成功!'
@@ -477,7 +402,7 @@
       handleCurrentChange: function (currentPage) {
         this.currentPage = currentPage;
         let params = new URLSearchParams();
-        params.append('page', this.currentPage);
+        params.append('currentPage', this.currentPage);
         params.append('size', this.pagesize);
         this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
           companyId: COMPANYID
@@ -485,6 +410,7 @@
           .then((response) => {
             console.log('展示第' + this.currentPage + '页项目信息成功');
             this.tableData = response.data.object.data;
+            this.projectCount = response.data.object.recordSize;
           })
           .catch((error) => {
             alert(error);
@@ -500,7 +426,7 @@
         }
       },
       handleSelectionChange(val) {
-        for (var i = 0; i < val.length; i++) {
+        for (let i = 0; i < val.length; i++) {
           this.multipleSelection[i] = val[i].projectId;
         }
       },
@@ -512,21 +438,19 @@
           type: 'warning',
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
-          this.$axios.post(PREFIX + '/project/delProjects.do?companyId='+COMPANYID, {
-             projectIds:this.multipleSelection,
+          this.$axios.post(PREFIX + '/project/delProjects.do?companyId=' + COMPANYID, {
+            projectIds: this.multipleSelection,
           })
-            .then((response) => {
-              console.log(response);
+            .then(() => {
               for (let i = 0; i < this.multipleSelection.length; i++) {
-                let val = this.multipleSelection;
-                val.forEach((val, index) => {
-                  this.tableData.forEach((v, i) => {
-                    if (val.projectId === v.projectId) {
-                      this.tableData.splice(i, 1);
-                    }
-                  })
-                })
+                let val = this.multipleSelection[i];
+                for (let j = 0; j < this.tableData.length; j++) {
+                  if (val === this.tableData[j].projectId) {
+                    this.tableData.splice(i, 1);
+                  }
+                }
               }
+              this.projectCount--;
             })
             .catch((error) => {
               alert(error);
@@ -539,22 +463,13 @@
         });
 
       },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${file.name}？`)
-      },
       handleClose(done) {
         this.$confirm('确认关闭？')
-          .then(_ => {
+          .then(() => {
             done()
           })
-          .catch(_ => {
+          .catch(()=> {
           })
-      },
-      handleEdit(index, row) {
-        console.log(index, row);
-      },
-      handleDelete(index, row) {
-        console.log(index, row);
       },
     }
   }

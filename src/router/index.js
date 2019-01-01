@@ -8,7 +8,7 @@ import BookManagement from '@/components/BookManagement'
 import ProjectManagement from '@/components/ProjectManagement'
 import Home from '@/components/Home'
 import Login from '@/components/Login'
-import Register from '@/components/Register'
+import Register from '@/components/Fristregister'
 import Fristregister from '@/components/Fristregister'
 import Secondregister from '@/components/Secondregister'
 import EditorProject from '@/components/editorProject'
@@ -124,21 +124,21 @@ const router = new Router({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.matched.some(r => r.meta.requiresAuth)) { // 判断该路由是否需要登录权限
-    console.log(store.getters.isLogin)
-    if (store.getters.isLogin) { // 通过vuex 如果当前有登录
-      next()
-    } else {
-      console.log('没有登录吖')
-      next({
-        path: '/',
-        query: {redirect: to.fullPath}
-      })
-    }
-  } else {
-    next()
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   if (to.matched.some(r => r.meta.requiresAuth)) { // 判断该路由是否需要登录权限
+//     console.log(store.getters.isLogin)
+//     if (store.getters.isLogin) { // 通过vuex 如果当前有登录
+//       next()
+//     } else {
+//       console.log('没有登录吖')
+//       next({
+//         path: '/',
+//         query: {redirect: to.fullPath}
+//       })
+//     }
+//   } else {
+//     next()
+//   }
+// })
 
 export default router

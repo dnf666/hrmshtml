@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="editorTop">
-      <sapn>当前位置：</sapn>
+      <span>当前位置：</span>
       <el-breadcrumb class="breadcrumbEditor" separator=">">
         <el-breadcrumb-item>公司设置</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/MemberMangement' }">成员管理</el-breadcrumb-item>
@@ -11,7 +11,7 @@
     <div id="editorTitle">编辑成员</div>
     <el-tabs v-model="activeName" class="tabsEditor" type="card">
       <el-tab-pane label="基本信息" name="first">
-        <el-form :model="form">
+        <el-form>
           <el-form-item label="公司ID*" :label-width="formLabelWidth">
             <el-input class="increaseInput" disabled="disabled" v-model="companyId" placeholder="公司名称"></el-input>
           </el-form-item>
@@ -39,7 +39,7 @@
           </el-form-item>
         </el-form>
         <div class="sure">
-          <el-button :to="{ path: '/MemberMangement' }">取 消</el-button>
+          <el-button @click = "returnMemberMangement">取 消</el-button>
           <el-button type="primary" @click="putEditorMemberInfo">保 存</el-button>
         </div>
       </el-tab-pane>
@@ -101,6 +101,9 @@ export default {
   },
   methods: {
     //编辑成员信息(success)
+    returnMemberMangement(){
+      this.$router.push({ name: 'MemberMangement'});
+    },
     putEditorMemberInfo() {
       if (this.radio == '0'){
         this.sex = '男'
@@ -121,7 +124,6 @@ export default {
         whereAbout:this.whereAbout
       };
       let obj = JSON.stringify(form);
-      console.log(obj);
       //提交请求
       this.$axios.put(PREFIX+'member/member.do?companyId='+COMPANYID,{
           companyId: this.companyId,
@@ -137,7 +139,6 @@ export default {
 
       })
       .then( (response) => {
-        console.log(response);
         this.$router.push({ name: 'MemberMangement', params: { changedInfo:obj } });
       })
       .catch( (error) => {

@@ -2,13 +2,6 @@
   <div class="box">
     <el-card class="box-card">
       <div class="title">注册成功</div>
-      <!-- <el-progress :text-inside="true" :stroke-width="18" :percentage="100"></el-progress> -->
-      <!-- <div class="prog">
-        <span></span>
-        <span>完善资料</span>
-        <span>注册成功</span>
-      </div> -->
-    <!-- <router-view/> -->
       <el-table
     v-loading="loading"
     style="width: 100%">

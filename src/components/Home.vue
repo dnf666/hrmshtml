@@ -179,7 +179,6 @@
         }
       })
         .then((response) => {
-          console.log(response);
           var photoPath = response.data.object.photoPath;
           if (photoPath == null) {
             this.imageUrl = DEFAULT_PHOTO;
@@ -196,33 +195,17 @@
       });
     },
     methods: {
-      // 上传头像成功
-      sendPhoto(file) {
-        this.$axios.post(PREFIX + '/index/photo.do', file).then((response) => {
-          console.log(response);
-        })
-      },
       handleAvatarSuccess(res, file) {
         this.imageUrl = URL.createObjectURL(file.raw);
       },
       // 判断上传头像的格式和大小
       beforeAvatarUpload(file) {
-        //   const isJPG = file.type === 'image/jpeg';
-        //   const isLt2M = file.size / 1024 / 1024 < 2;
-        //   if (!isJPG) {
-        //     this.$message.error('上传头像图片只能是 JPG 格式!');
-        //   }
-        //   if (!isLt2M) {
-        //     this.$message.error('上传头像图片大小不能超过 2MB!');
-        //   }
-        //   return isJPG && isLt2M;
-        // },
         let formData = new FormData();
         formData.append("file", file);
         formData.append("companyId", COMPANYID);
         this.$axios.post(PREFIX + '/index/photo.do', formData).then((response) => {
           console.log(response);
-        })
+        });
         return null;
       },
     }

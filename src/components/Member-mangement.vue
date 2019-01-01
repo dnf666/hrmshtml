@@ -8,7 +8,7 @@
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加成员
         <el-dialog title="添加成员" :visible.sync="dialogFormVisible" :append-to-body='true' top='10px' width="550px">
-          <el-form :model="tableData" class="memberData">
+          <el-form class="memberData">
             <el-form-item label="邮箱*" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="newEmail" placeholder="登录邮箱"></el-input>
             </el-form-item>
@@ -421,8 +421,6 @@
       return {
         companyName: '',
         memberCount: 0,
-        activeNames: ['1'],
-        input10: '',
         show3: false,
         currentPage: 1,
         pagesize: 10,
@@ -471,18 +469,6 @@
     },
     //获取全部成员信息(success)
     created: function () {
-      // 得到成员总数
-      this.$axios.get(PREFIX + '/member/count.do', {
-        params: {
-          companyId: COMPANYID
-        }
-      })
-        .then((response) => {
-          this.memberCount = response.data.object;
-        })
-        .catch((error) => {
-          alert(error);
-        });
       this.$axios.get(PREFIX + '/company/company.do', {
         params: {
           email: COMPANYID
@@ -499,8 +485,8 @@
         companyId: COMPANYID
       })
         .then((response) => {
-          console.log(response);
           this.tableData = response.data.object.data;
+          this.memberCount = response.data.object.recordSize;
         })
         .catch((error) => {
           alert(error);
@@ -517,9 +503,9 @@
           companyId: COMPANYID
         })
           .then((response) => {
-            console.log(response);
             console.log('展示第' + this.currentPage + '页成员信息成功');
             this.tableData = response.data.object.data;
+            this.memberCount = response.data.object.recordSize;
           })
           .catch((error) => {
             alert(error);
@@ -558,15 +544,22 @@
           num: num
         })
           .then((response) => {
-            console.log(response.data.message);
-            for (let i = 0; i < this.tableData.length; i++) {
-              this.tableData.forEach((v, i) => {
-                if (v.num === num) {
-                  this.tableData.splice(i, 1);
-                }
-              })
+            if (response.data.code == 1) {
+                for (let i = 0; i < this.tableData.length; i++) {
+                    if (this.tableData[i].num === num) {
+                      this.tableData.splice(i, 1);
+                    }
+                  }
+              this.memberCount--;
             }
-          })
+            else {
+              this.$message({
+                type: 'info',
+                message: '已取消删除'
+              });
+            }
+            }
+          )
           .catch((error) => {
             alert(error);
           });
@@ -579,23 +572,12 @@
           type: 'warning',
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
-          console.log(this.multipleSelection);
           this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
             num: this.multipleSelection.toString()
-          })
-            .then((response) => {
-              console.log(response);
-              for (let i = 0; i < this.multipleSelection.length; i++) {
-                let val = this.multipleSelection;
-                val.forEach((val, index) => {
-                  this.tableData.forEach((v, i) => {
-                    if (val.num === v.num) {
-                      this.tableData.splice(i, 1);
-                    }
-                  })
-                })
+          }).then((response) => {
+             window.location.reload();
               }
-            })
+            )
             .catch((error) => {
               alert(error);
             });
@@ -661,7 +643,7 @@
         var params = new URLSearchParams();
         params.append('page', this.currentPage);
         params.append('size', this.pagesize);
-        if (this.radio == '0') {
+        if (this.radio == 0) {
           this.sex = '男';
         } else {
           this.sex = '女';
@@ -680,8 +662,8 @@
             whereAbout: this.filterWhereAbout
           })
           .then((response) => {
-            console.log('根据条件查询成功');
             this.tableData = response.data.object.data;
+            this.memberCount = response.data.object.recordSize;
           })
           .catch((error) => {
             alert(error);
@@ -699,16 +681,12 @@
         let formData = new FormData();
         formData.append("file", this.file);
         formData.append("companyId", COMPANYID);
-        console.log(formData);
         this.$axios.post(PREFIX + 'member/excel.do', formData)
           .then((response) => {
             this.dialogVisible = false;
-            // window.location.reload();
           })
           .catch((error) => {
-            console.log('上传文件失败');
             alert(error);
-            // window.location.reload();
           })
       },
       //下载当前页面的数据到Excel表(success)
@@ -731,7 +709,6 @@
             whereAbout: this.filterWhereAbout
           }, {responseType: "arraybuffer"})
             .then((response) => {
-              console.log(response);
               let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
               var link = document.createElement('a');
               link.href = window.URL.createObjectURL(blob);

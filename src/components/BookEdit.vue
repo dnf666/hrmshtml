@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="editorTop">
-      <sapn>当前位置：</sapn>
+      <span>当前位置：</span>
       <el-breadcrumb class="breadcrumbEditor" separator=">">
         <el-breadcrumb-item>公司设置</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/BookMangement' }">图书管理</el-breadcrumb-item>
@@ -11,12 +11,12 @@
     <div id="editorTitle">编辑图书</div>
     <el-tabs v-model="activeName" class="tabsEditor" type="card">
       <el-tab-pane label="基本信息" name="first">
-        <el-form :model="form">
+        <el-form>
           <el-form-item label="公司ID*" :label-width="formLabelWidth">
             <el-input class="increaseInput" disabled="disabled" v-model="companyId"></el-input>
           </el-form-item>
           <el-form-item label="图书编号" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="图书编号" v-model="bookId"></el-input>
+            <el-input class="increaseInput" placeholder="图书编号" disabled="disabled" v-model="bookId"></el-input>
           </el-form-item>
           <el-form-item label="图书名" :label-width="formLabelWidth">
             <el-input class="increaseInput" placeholder="登录邮箱" v-model="bookName"></el-input>
@@ -32,7 +32,7 @@
           </el-form-item>
         </el-form>
         <div class="sure">
-          <el-button >取 消</el-button>
+          <el-button type="primary" @click="returnManage">取 消</el-button>
           <el-button type="primary" @click="putEditorBookInfo">保 存</el-button>
         </div>
       </el-tab-pane>
@@ -80,10 +80,12 @@ export default {
       }
     },
   created(){
-  console.log(this.$route.query.bookOriginalInfo);
   },
 
   methods: {
+    returnManage(){
+      this.$router.push({ name: 'BookManagement'});
+    },
     putEditorBookInfo(){
       this.$axios.put(PREFIX+"book/book.do",{
         companyId: COMPANYID,
@@ -97,9 +99,9 @@ export default {
           type: 'info',
           message:response.data.msg
         });
+        this.$router.push({ name: 'BookManagement'});
       });
       }
-
   }
 }
 </script>

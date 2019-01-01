@@ -7,7 +7,7 @@
       <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加图书
         <el-dialog title="添加图书" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
-          <el-form :model="tableData">
+          <el-form>
             <el-form-item label="图书名称" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="正确填写书名" v-model="addname"></el-input>
             </el-form-item>
@@ -406,13 +406,11 @@
           type: 'warning',
         }).then(() => {
           // todo 违反了rest原则。 但是现在又传不过去
-          console.log(this.multipleSelection);
           this.$axios.post(PREFIX + '/book/delBook.do', {
             bookId:this.multipleSelection.toString(),
             companyId:COMPANYID
           })
             .then((response) => {
-              console.log(response);
               window.location.reload();
             })
             .catch((error) => {
@@ -443,7 +441,6 @@
       },
       getExcel(event) {
         this.file = event.target.files[0];
-        console.log(this.file);
       },
       //上传Excel表到数据库(success)
       uploadExcel(event) {
@@ -452,7 +449,6 @@
         let formData = new FormData();
         formData.append("file", this.file);
         formData.append("companyId",COMPANYID);
-        console.log(formData);
         this.$axios.post(PREFIX + 'book/excel.do', formData)
           .then((response) => {
             this.dialogVisible = false;
@@ -516,13 +512,13 @@
         }).then((res) => {
           if (res.data.code == 1) {
             this.$message({
-              type: 'info',
+              type: 'success',
               message: '添加成功!'
             });
-
+          window.location.reload();
           } else {
             this.$message({
-              type: 'info',
+              type: 'warn',
               message: '添加失败!'
             });
           }
@@ -567,11 +563,11 @@
           book.companyId = COMPANYID;
           book.bookId = index;
           this.$axios.post(PREFIX + '/book/delBook.do',book).then((response) => {
-              console.log(response.data.message);
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
+            if (response.data.code == 1) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
               for (let i = 0; i < this.tableData.length; i++) {
                 this.tableData.forEach((v, i) => {
                   if (v.num === index) {
@@ -579,6 +575,7 @@
                   }
                 });
               }
+            }
             })
         },
       //下载Excel模板(success)
@@ -586,12 +583,11 @@
         this.$confirm('是否下载模板？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'info',
+          type: 'warn',
         }).then(() => {
           this.$axios.post(PREFIX+'download.do?name=book.xlsx', {
           },{responseType:"arraybuffer"})
             .then((response) => {
-              console.log(response);
               let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
               var link = document.createElement('a');
               link.href = window.URL.createObjectURL(blob);
