@@ -452,12 +452,10 @@
         this.$axios.post(PREFIX + 'book/excel.do', formData)
           .then((response) => {
             this.dialogVisible = false;
-            // window.location.reload();
           })
           .catch((error) => {
             console.log('上传文件失败');
             alert(error);
-            // window.location.reload();
           })
       },
       downloadExcel() {
@@ -627,10 +625,11 @@
           book.quantity = parseInt(this.filterQuantity);
         }
         book.version = this.version;
-        this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book).then((response => {
+        this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book)
+          .then((response) => {
           this.tableData = response.data.object.data;
           this.bookCount = response.data.object.recordSize;
-        }))
+        })
       }
     }
   }
