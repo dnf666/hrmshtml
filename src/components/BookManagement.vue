@@ -629,7 +629,7 @@
         book.version = this.version;
         this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book).then((response => {
           this.tableData = response.data.object.data;
-          this.bookCount = response.data.object.reordSize;
+          this.bookCount = response.data.object.recordSize;
         }))
       }
     }
