@@ -91,9 +91,10 @@ export default {
   align-items: center;
 }
 .title {
-  display: flex;
-  justify-content: center;
-  font-size: 24px;
+  font-size: 30px;
+  font-weight: 500;
+  margin: 50px 0 10px 30px;
+  text-align: left;
 }
 .text {
   font-size: 14px;
