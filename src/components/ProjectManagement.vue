@@ -83,6 +83,30 @@
                   删除项目
                   </span>
                 </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="dialogInfoVisible=true">
+                  通知报警
+                  </span>
+                </el-dropdown-item>
+                <el-dialog
+                  title="导入信息"
+                  :visible.sync="dialogInfoVisible"
+                  top='50px'
+                  left='50px'
+                  width="500px"
+                  :append-to-body='true'
+                  :before-close="handleClose">
+                  <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+                  <div style="margin: 15px 0;"></div>
+                  <el-checkbox-group v-model="checkedMembers" @change="handleCheckedMembersChange">
+                    <el-checkbox v-for="member in members" :label="member.name" :key="member.name">{{member.name}}</el-checkbox>
+                  </el-checkbox-group>
+                  <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogInfoVisible = false">取 消</el-button>
+              <el-button type="primary" @click="infoMember(scope.row.projectId)">确 定</el-button>
+            </span>
+                </el-dialog>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -265,7 +289,6 @@
   }
 </style>
 <script>
-
   var COMPANYID = window.sessionStorage.getItem("companyId");
   const PREFIX = 'http://localhost:8081/hrms/';
   export default {
@@ -284,6 +307,7 @@
           onlineTime: '',
           status: '',
         }],
+        dialogInfoVisible: false,
         multipleSelection: [],
         dialogFormVisible: false,
         dialogVisible: false,
@@ -306,7 +330,13 @@
         filterProjectName: '',
         filterProjectUrl: '',
         filterOnlineTime: '',
-
+        checkAll: false,
+        checkedMembers: [],
+        members: [{
+          email: '',
+          name: '',
+        }],
+        isIndeterminate: true
       }
     },
     created: function () {
@@ -326,6 +356,10 @@
         this.tableData = res.data.object.data;
         this.projectCount = res.data.object.recordSize;
       });
+      this.$axios.get(PREFIX + '/member/member.do?companyId=' + COMPANYID, {}).then((res) => {
+        this.members = res.data.object;
+        console.log(this.members);
+      })
     },
     methods: {
       addDataSave: function () {
@@ -359,11 +393,48 @@
           projectUrl: this.filterProjectUrl,
           onlineTime: this.filterOnlineTime
         }).then((response) => {
-            this.tableData = response.data.object.data;
-            this.projectCount = response.data.object.recordSize;
-          }).catch((error) => {
-            alert(error);
-          });
+          this.tableData = response.data.object.data;
+          this.projectCount = response.data.object.recordSize;
+        }).catch((error) => {
+          alert(error);
+        });
+      },
+      infoMember(index) {
+        let emails = [];
+        let checked = this.checkedMembers;
+        let members = this.members;
+        this.$confirm('此操作将发送邮件给选中联系人, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          for (let i = 0; i < checked.length; i++) {
+            for (let j = 0; j < members.length; j++) {
+              if (checked[i] == members[j].name) {
+                emails[i] = members[j].email;
+                break;
+              }
+            }
+          }
+          let params = new URLSearchParams();
+          params.append('companyId', COMPANYID);
+          params.append('projectId', index);
+          this.$axios.post(PREFIX + '/project/info.do?' + params.toString(), {
+            memberEmails: emails.toString(),
+          }).then((response) => {
+            if (response.data.code == 1) {
+              this.$message({
+                type: 'info',
+                message: '发送成功!'
+              });
+            } else {
+              this.$message({
+                type: 'warn',
+                message: '发送失败!'
+              });
+            }
+          })
+        })
       },
       deleteRow(index) {
         let data = index;
@@ -468,9 +539,19 @@
           .then(() => {
             done()
           })
-          .catch(()=> {
+          .catch(() => {
           })
       },
+      handleCheckAllChange(val) {
+        this.checkedMembers = val ? this.members : [];
+        this.isIndeterminate = false;
+      },
+      handleCheckedMembersChange(value) {
+        let checkedCount = value.length;
+        this.checkAll = checkedCount === this.members.length;
+        this.isIndeterminate = checkedCount > 0 && checkedCount < this.members.length;
+        console.log(this.checkedMembers);
+      }
     }
   }
 </script>

@@ -50,7 +50,7 @@ export default {
           that.$store.commit('setCompanyId',this.email);
           window.sessionStorage.setItem('isLogin', true);
           window.sessionStorage.setItem('companyId',this.email);
-          that.$router.push({path: '/home'})
+          that.$router.push({path:'/CompanyInfo'})
         }
         else {
           alert(response.data.message);
@@ -61,6 +61,8 @@ export default {
       });
 
     },
+
+
     changeEmail(e) {
 
     },

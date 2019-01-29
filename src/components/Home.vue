@@ -67,6 +67,12 @@
                 </router-link>
               </el-menu-item-group>
             </el-submenu>
+            <el-menu-item index="" @click="exit">
+              <i class="el-icon-warning"></i>
+              <span slot="title">
+                  注销
+                </span>
+            </el-menu-item>
           </el-tabs>
         </el-menu>
       </div>
@@ -149,7 +155,7 @@
 </style>
 
 <script>
-  var COMPANYID = window.sessionStorage.getItem("companyId");
+  const COMPANYID = window.sessionStorage.getItem("companyId");
   const PREFIX = 'http://localhost:8081/hrms';
   const DEFAULT_PHOTO = PREFIX+'/photo/logo.png';
   export default {
@@ -172,7 +178,8 @@
       }
     },
     // 得到公司头像
-    created() {
+    created(){
+      var COMPANYID = window.sessionStorage.getItem("companyId");
       this.$axios.get(PREFIX + '/index/index.do', {
         params: {
           companyId: COMPANYID
@@ -208,6 +215,17 @@
         });
         return null;
       },
+      exit(){
+        let that = this;
+        this.$confirm('是否退出？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warn',
+        }).then(() => {
+        window.sessionStorage.setItem('companyId',null);
+        that.$router.push({path: '/'});
+        })
+      }
     }
   }
 </script>
