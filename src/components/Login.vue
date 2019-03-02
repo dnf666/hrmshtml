@@ -20,6 +20,8 @@
         v-on:input="changePassword"
         >
       </el-input>
+      <el-radio v-model="radio" label="2">成员</el-radio>
+      <el-radio v-model="radio" label="1">管理员</el-radio>
       <el-button class="loginbutton" type="primary" @click="onSubmit">登陆</el-button>
       <div class="footer">还没有账号？<router-link class="reg" to="/register">注册公司</router-link></div>
   </el-card>
@@ -33,7 +35,8 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      radio:'2'
     };
   },
   methods: {
@@ -41,15 +44,19 @@ export default {
       let that = this;
       //提交请求
       this.$axios.post(PREFIX+'/hrms/company/login.do', {
+        permission:this.radio,
         email: this.email,
         password: this.password
       })
       .then((response)=> {
         if (response.data.status == 0) {
+          let permission = response.data.object.permission;
           that.$store.commit('setIsLogin', true);
-          that.$store.commit('setCompanyId',this.email);
+          that.$store.commit('setCompanyId',response.data.object.companyId);
+          that.$store.commit('setPermission',permission);
           window.sessionStorage.setItem('isLogin', true);
-          window.sessionStorage.setItem('companyId',this.email);
+          window.sessionStorage.setItem('permission', permission);
+          window.sessionStorage.setItem('companyId',response.data.object.companyId);
           that.$router.push({path:'/CompanyInfo'})
         }
         else {

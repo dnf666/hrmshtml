@@ -148,7 +148,7 @@
         <el-table-column
           width="50">
           <template slot-scope="scope">
-            <el-dropdown>
+            <el-dropdown v-show="permission == 1">
               <span class="el-dropdown-link">
                 <i class="editor el-icon-caret-bottom"></i>
               </span>
@@ -436,6 +436,7 @@
           phoneNumber: '',
           whereAbout: ''
         }],
+        permission:'',
         value: '',
         multipleSelection: [],
         dialogFormVisible: false,
@@ -469,6 +470,8 @@
     },
     //获取全部成员信息(success)
     created: function () {
+      console.log(window.sessionStorage.getItem("permission"));
+      this.permission = window.sessionStorage.getItem("permission");
       this.$axios.get(PREFIX + '/company/company.do', {
         params: {
           email: COMPANYID

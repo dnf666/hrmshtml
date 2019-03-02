@@ -223,7 +223,8 @@
           type: 'warn',
         }).then(() => {
         window.sessionStorage.setItem('companyId',null);
-        that.$router.push({path: '/'});
+          window.sessionStorage.setItem('permission',null);
+          that.$router.push({path: '/'});
         })
       }
     }
