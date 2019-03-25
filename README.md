@@ -1,30 +1,16 @@
 # hrms
 
-> A Vue.js project
+基于vue的项目，作为hrms的前端项目，需要配合hrms后端系统使用
+后端项目地址是https://github.com/dnf666/hrms.git
+## 部署方法
+### dev模式
 
-## Build Setup
+命令行输入 npm install(前提是安装了node环境)
+然后 npm run dev
+运行完成后，访问显示的url
 
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### 生产模式
+命令行输入 npm install(前提是安装了node环境)
+然后 npm run build 得到一个dist文件夹
+在tomcat的webapps目录下创建文件夹hrms。将dist的文件拷贝到到hrms目录下
+启动tomcat。

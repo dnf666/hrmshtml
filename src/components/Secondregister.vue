@@ -34,15 +34,8 @@ export default {
       }
     },1000)
   },
-  //  created() {
-  //   console.log(this.number);
-  //   setTimeout(function() {
-  //     this.number = this.number - 1;
-  //     console.log(this.number);
-  //   },1000)
-  //   console.log(1);
-  //  }
-  
+
+
 }
 </script>
 

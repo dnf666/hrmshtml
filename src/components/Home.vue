@@ -211,7 +211,12 @@
         formData.append("file", file);
         formData.append("companyId", COMPANYID);
         this.$axios.post(PREFIX + '/index/photo.do', formData).then((response) => {
-          console.log(response);
+          if (response.data.status ==0 ){
+            window.location.reload();
+          }
+          else{
+            alert(response.data.message);
+          }
         });
         return null;
       },

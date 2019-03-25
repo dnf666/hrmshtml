@@ -1,10 +1,10 @@
 <template>
   <div>
     <router-view/>
-    <div class="top">图书管理</div>
+    <div class="book_top">图书管理</div>
     <div class="contentB">
       <p>{{this.companyName}}</p>
-      <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
+      <el-dropdown split-button v-show="permission == 1" type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加图书
         <el-dialog title="添加图书" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
           <el-form>
@@ -15,7 +15,7 @@
               <el-input class="increaseInput" placeholder="前端/后台/产品" v-model="addcategory"></el-input>
             </el-form-item>
             <el-form-item label="图书数量" :label-width="formLabelWidth">
-              <el-input class="increaseInput" v-model="addquantity"></el-input>
+              <el-input-number v-model="addquantity" @change="handleChange" :min="1" :max="10" label="描述文字"></el-input-number>
             </el-form-item>
             <el-form-item label="图书版本" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="addversion"></el-input>
@@ -72,6 +72,7 @@
       </el-dropdown>
       <el-button
         type="danger"
+        v-show="permission == 1"
         @click.prevent='removeSelection()'
         :disabled="isDisabled"
       >
@@ -88,14 +89,11 @@
       <div style="margin-top: 10px;">
         <el-collapse-transition>
           <div v-show="show3">
-            <!-- <div class="transition-box">el-collapse-transition</div> -->
             <div class="transition-box">
               <span>图书ID：<el-input class="filter" v-model="filterBookId"></el-input></span>
               <span>图书名：<el-input class="filter" v-model="filterBookName"></el-input></span><br>
               <span>书类型：<el-input class="filter" v-model="filterCategory"></el-input></span>
-              <span>数量：<el-input class="filter" v-model="filterQuantity"></el-input></span>
               <span>版本：<el-input class="filter" v-model="filterVersion"></el-input></span>
-
               <el-button class="primary" type="primary" @click="filterBook">过滤</el-button>
             </div>
           </div>
@@ -111,6 +109,7 @@
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
+          v-if="permission == 1"
           type="selection"
           width="55"
         >
@@ -119,7 +118,7 @@
         <el-table-column
           width="50">
           <template slot-scope="scope">
-            <el-dropdown>
+            <el-dropdown v-show="permission == 1">
               <span class="el-dropdown-link">
                 <i class="editor el-icon-caret-bottom"></i>
               </span>
@@ -195,7 +194,7 @@
     padding: 0;
   }
 
-  .top {
+  .book_top {
     font-size: 19px;
     line-height: 60px;
     padding-left: 20px;
@@ -373,11 +372,12 @@
         filterCategory: '',
         filterQuantity: '',
         filterVersion: '',
-        file:''
-
+        file:'',
+        permission:''
       }
     },
     created: function () {
+      this.permission = window.sessionStorage.getItem("permission");
       this.$axios.get(PREFIX + '/company/company.do', {
         params: {
           email: COMPANYID
@@ -624,8 +624,7 @@
         if (this.quantity != '') {
           book.quantity = parseInt(this.filterQuantity);
         }
-        book.version = this.version;
-        this.$axios.post(PREFIX + 'book/filter.do?'+params.toString(),book)
+        this.$axios.post(PREFIX + 'book/filter.do?'+ params.toString(),book)
           .then((response) => {
           this.tableData = response.data.object.data;
           this.bookCount = response.data.object.recordSize;

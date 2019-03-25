@@ -1,19 +1,21 @@
 <template>
   <div>
     <router-view/>
-    <div class="top">成员管理</div>
+    <div class="member_top">成员管理</div>
     <div class="contentm">
       <p>{{this.companyName}}</p>
       <!-- 添加成员 -->
-      <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
+      <el-dropdown split-button type="primary" v-show="permission == 1" class="moreMenu" @click="dialogFormVisible = true">
         添加成员
         <el-dialog title="添加成员" :visible.sync="dialogFormVisible" :append-to-body='true' top='10px' width="550px">
           <el-form class="memberData">
             <el-form-item label="邮箱*" :label-width="formLabelWidth">
-              <el-input class="increaseInput" v-model="newEmail" placeholder="登录邮箱"></el-input>
+              <el-input class="increaseInput" v-on:input="inputEmail" v-model="newEmail" placeholder="登录邮箱"></el-input>
+              <span class="tip st">{{ emailTips }}</span>
             </el-form-item>
             <el-form-item label="学号*" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="newNum" placeholder="正确填写学号"></el-input>
+              <span class="tip st">{{ studentIdTips }}</span>
             </el-form-item>
             <el-form-item label="姓名" :label-width="formLabelWidth">
               <el-input class="increaseInput" v-model="newName" placeholder="真实姓名"></el-input>
@@ -40,7 +42,7 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addMember">保存并添加下一个</el-button>
+            <el-button type="primary" :disabled="isdisabledFn" @click="addMember">保存并添加下一个</el-button>
           </div>
         </el-dialog>
         <!-- Excel导入导出 -->
@@ -89,6 +91,7 @@
         </el-dropdown-menu>
       </el-dropdown>
       <el-button
+        v-show="permission == 1"
         type="danger"
         @click.prevent='delData()'
         :disabled="isDisabled"
@@ -140,11 +143,11 @@
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
+          v-if="permission == 1"
           type="selection"
           width="55"
         >
         </el-table-column>
-        <!-- 成员状态编辑 -->
         <el-table-column
           width="50">
           <template slot-scope="scope">
@@ -162,6 +165,18 @@
                   <span
                     @click="deleteMember(scope.row.num)">
                   删除成员
+                  </span>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="setPermission(scope.row.email,1)">
+                  授予权限
+                  </span>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <span
+                    @click="setPermission(scope.row.email,2)">
+                  取消权限
                   </span>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -245,7 +260,12 @@
     padding: 0;
   }
 
-  .top {
+  .tip {
+    font-size: 12px;
+    color: red;
+  }
+
+  .member_top {
     font-size: 19px;
     line-height: 60px;
     padding-left: 20px;
@@ -301,6 +321,12 @@
   .sex {
     width: 70px;
     margin-left: 10px;
+  }
+
+  .st {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-start;
   }
 
   .increaseInput {
@@ -414,11 +440,25 @@
   import FileSaver from 'file-saver'
   import XLSX from 'xlsx'
 
-  var COMPANYID = window.sessionStorage.getItem("companyId");
-  const PREFIX = 'http://localhost:8081/hrms/';
+  var COMPANYID = window.sessionStorage.getItem('companyId')
+  const PREFIX = 'http://localhost:8081/hrms/'
+  let isnext = (that) => {
+    for (let i = 0; i < 1; i++) {
+      if (that.isnext[i] == true) {
+        return
+      }
+    }
+    if (that.gre == false) {
+      that.isdisabledFn = true
+      return
+    } else {
+      that.isdisabledFn = false
+    }
+  }
   export default {
-    data() {
+    data () {
       return {
+        isdisabledFn: true,
         companyName: '',
         memberCount: 0,
         show3: false,
@@ -436,8 +476,11 @@
           phoneNumber: '',
           whereAbout: ''
         }],
-        permission:'',
+        emailTips: '',
+        studentIdTips: '',
+        permission: '',
         value: '',
+        isnext: [false],
         multipleSelection: [],
         dialogFormVisible: false,
         dialogVisible: false,
@@ -470,51 +513,75 @@
     },
     //获取全部成员信息(success)
     created: function () {
-      console.log(window.sessionStorage.getItem("permission"));
-      this.permission = window.sessionStorage.getItem("permission");
+      this.permission = window.sessionStorage.getItem('permission')
       this.$axios.get(PREFIX + '/company/company.do', {
         params: {
           email: COMPANYID
         }
       })
         .then((response) => {
-          this.companyName = response.data.object.name;
-        });
+          this.companyName = response.data.object.name
+        })
       // 得到当前页面成员列表
-      var params = new URLSearchParams();
-      params.append('page', this.currentPage);
-      params.append('size', this.pagesize);
+      let params = new URLSearchParams()
+      params.append('page', this.currentPage)
+      params.append('size', this.pagesize)
       this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
         companyId: COMPANYID
       })
         .then((response) => {
-          this.tableData = response.data.object.data;
-          this.memberCount = response.data.object.recordSize;
+          this.tableData = response.data.object.data
+          this.memberCount = response.data.object.recordSize
         })
         .catch((error) => {
-          alert(error);
-        });
+          alert(error)
+        })
     },
     methods: {
       // 获取当前页数及当前页面数据
-      handleCurrentChange(currentPage) {
-        this.currentPage = currentPage;
-        let params = new URLSearchParams();
-        params.append('page', this.currentPage);
-        params.append('size', this.pagesize);
+      handleCurrentChange (currentPage) {
+        this.currentPage = currentPage
+        let params = new URLSearchParams()
+        params.append('page', this.currentPage)
+        params.append('size', this.pagesize)
         this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
           companyId: COMPANYID
         })
           .then((response) => {
-            console.log('展示第' + this.currentPage + '页成员信息成功');
-            this.tableData = response.data.object.data;
-            this.memberCount = response.data.object.recordSize;
+            console.log('展示第' + this.currentPage + '页成员信息成功')
+            this.tableData = response.data.object.data
+            this.memberCount = response.data.object.recordSize
           })
           .catch((error) => {
-            alert(error);
-          });
+            alert(error)
+          })
       },
-      toggleSelection(rows) {
+      setPermission (num, permission) {
+        this.$axios.post(PREFIX + '/manage/permission.do', {
+          companyId: COMPANYID,
+          email: num,
+          permission: permission
+        })
+          .then((response) => {
+              if (response.data.status == 0) {
+                this.$message({
+                  type: 'success',
+                  message: response.data.message
+                })
+              } else {
+                this.$message({
+                  type: 'warning',
+                  message: response.data.message
+                })
+
+              }
+            }
+          )
+          .catch((error) => {
+            alert(error)
+          })
+      },
+      toggleSelection (rows) {
         if (rows) {
           rows.forEach(row => {
             this.$refs.multipleTable.toggleRowSelection(row)
@@ -524,15 +591,37 @@
         }
       },
       handleSizeChange: function (size) {
-        this.pagesize = size;
+        this.pagesize = size
       },
-      //获得选中的一行数据
-      handleSelectionChange(val) {
-        for (var i = 0; i < val.length; i++) {
-          this.multipleSelection[i] = val[i].num;
+      inputEmail (e) {
+        this.isdisabledFn = true
+        this.isnext[0] = true
+
+        function ckMail (str) {
+          var myreg = /^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/
+          return myreg.test(str)
+        }
+
+        if (this.newEmail == ' ') {
+          this.emailTips = ''
+          return
+        }
+        if (ckMail(e)) {
+          this.isnext[0] = false
+          this.emailTips = ' '
+          isnext(this)
+        } else {
+          this.emailTips = '您输入的邮箱格式有误'
         }
       },
-      handleClose(done) {
+
+      //获得选中的一行数据
+      handleSelectionChange (val) {
+        for (let i = 0; i < val.length; i++) {
+          this.multipleSelection[i] = val[i].num
+        }
+      },
+      handleClose (done) {
         this.$confirm('确认关闭？')
           .then(_ => {
             done()
@@ -541,34 +630,33 @@
           })
       },
       //删除单个成员信息()
-      deleteMember(num) {
-        // todo 违反了rest原则。 但是现在又传不过去
+      deleteMember (num) {
+        //todo 违反了rest原则。 但是现在又传不过去
         this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
           num: num
         })
           .then((response) => {
-            if (response.data.code == 1) {
+              if (response.data.code == 1) {
                 for (let i = 0; i < this.tableData.length; i++) {
-                    if (this.tableData[i].num === num) {
-                      this.tableData.splice(i, 1);
-                    }
+                  if (this.tableData[i].num === num) {
+                    this.tableData.splice(i, 1)
                   }
-              this.memberCount--;
-            }
-            else {
-              this.$message({
-                type: 'info',
-                message: '已取消删除'
-              });
-            }
+                }
+                this.memberCount--
+              } else {
+                this.$message({
+                  type: 'info',
+                  message: '已取消删除'
+                })
+              }
             }
           )
           .catch((error) => {
-            alert(error);
-          });
+            alert(error)
+          })
       },
       //删除选中行数据(success)
-      delData() {
+      delData () {
         this.$confirm('是否删除当前选中成员？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -578,29 +666,28 @@
           this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
             num: this.multipleSelection.toString()
           }).then((response) => {
-             window.location.reload();
-              }
-            )
+              window.location.reload()
+            }
+          )
             .catch((error) => {
-              alert(error);
-            });
+              alert(error)
+            })
         }).catch(() => {
           this.$message({
             type: 'info',
             message: '已取消删除'
-          });
-        });
+          })
+        })
 
       },
       //添加单个成员信息(success)
-      addMember() {
-        this.dialogFormVisible = false;
+      addMember () {
+        this.dialogFormVisible = false
         if (this.radio == 0) {
-          this.newSex = '男';
+          this.newSex = '男'
         } else {
-          this.newSex = '女';
+          this.newSex = '女'
         }
-        ;
         //提交请求
         this.$axios.post(PREFIX + '/member/member.do', {
           companyId: COMPANYID,
@@ -613,43 +700,22 @@
           phoneNumber: this.newPhoneNumber,
           profession: this.newProfession,
           whereAbout: this.newWhereAbout
-
+        }).then((response) => {
+          window.location.reload()
         })
-          .then((response) => {
-            // if (response.data.status == 0) {
-            // if (this.radio == '0') {
-            //   this.sex = '男';
-            // } else {
-            //   this.sex = '女';
-            // }
-            //   this.tableData.unshift({
-            //     companyId: COMPANYID,
-            //     num: this.newNum,
-            //     name: this.newName,
-            //     email: this.newEmail,
-            //     sex: this.newSex,
-            //     profession: this.newProfession,
-            //     department: this.newDepartment,
-            //     grade: this.newGrade,
-            //     phoneNumber: this.newPhoneNumber
-            //   });
-            // }
-            window.location.reload();
-            // }
-          })
           .catch((error) => {
-            alert(error);
-          });
+            alert(error)
+          })
       },
       //根据条件查找成员信息(success)
-      getFilterMemberInfo() {
-        var params = new URLSearchParams();
-        params.append('page', this.currentPage);
-        params.append('size', this.pagesize);
+      getFilterMemberInfo () {
+        let params = new URLSearchParams()
+        params.append('page', this.currentPage)
+        params.append('size', this.pagesize)
         if (this.radio == 0) {
-          this.sex = '男';
+          this.sex = '男'
         } else {
-          this.sex = '女';
+          this.sex = '女'
         }
         this.$axios.post(PREFIX + '/member/filter.do?' + params.toString()
           , {
@@ -665,35 +731,35 @@
             whereAbout: this.filterWhereAbout
           })
           .then((response) => {
-            this.tableData = response.data.object.data;
-            this.memberCount = response.data.object.recordSize;
+            this.tableData = response.data.object.data
+            this.memberCount = response.data.object.recordSize
           })
           .catch((error) => {
-            alert(error);
-          });
+            alert(error)
+          })
       },
       //得到文件内容
-      getExcel(event) {
-        this.file = event.target.files[0];
-        console.log(this.file);
+      getExcel (event) {
+        this.file = event.target.files[0]
+        console.log(this.file)
       },
       //上传Excel表到数据库(success)
-      uploadExcel(event) {
+      uploadExcel (event) {
         //阻止元素发生默认行为
-        event.preventDefault();
-        let formData = new FormData();
-        formData.append("file", this.file);
-        formData.append("companyId", COMPANYID);
+        event.preventDefault()
+        let formData = new FormData()
+        formData.append('file', this.file)
+        formData.append('companyId', COMPANYID)
         this.$axios.post(PREFIX + 'member/excel.do', formData)
           .then((response) => {
-            this.dialogVisible = false;
+            this.dialogVisible = false
           })
           .catch((error) => {
-            alert(error);
+            alert(error)
           })
       },
       //下载当前页面的数据到Excel表(success)
-      downloadExcel() {
+      downloadExcel () {
         this.$confirm('是否下载当前数据？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -710,48 +776,49 @@
             grade: this.filterGrade,
             phoneNumber: this.filterPhoneNumber,
             whereAbout: this.filterWhereAbout
-          }, {responseType: "arraybuffer"})
+          }, {responseType: 'arraybuffer'})
             .then((response) => {
-              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
-              var link = document.createElement('a');
-              link.href = window.URL.createObjectURL(blob);
-              link.download = COMPANYID + "member.xls";
-              link.click();
-              this.dialogVisible = false;
+              let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+              var link = document.createElement('a')
+              link.href = window.URL.createObjectURL(blob)
+              link.download = COMPANYID + 'member.xls'
+              link.click()
+              this.dialogVisible = false
             }).catch(() => {
             this.$message({
               type: 'info',
               message: '已取消下载'
-            });
-          });
-        });
+            })
+          })
+        })
       },
+
       //下载Excel模板(success)
-      uploadExcelTemplate() {
+      uploadExcelTemplate () {
         this.$confirm('是否下载模板？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'info',
         }).then(() => {
-          this.$axios.post(PREFIX + 'download.do?name=member.xlsx', {}, {responseType: "arraybuffer"})
+          this.$axios.post(PREFIX + 'download.do?name=member.xlsx', {}, {responseType: 'arraybuffer'})
             .then((response) => {
-              console.log(response);
-              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
-              var link = document.createElement('a');
-              link.href = window.URL.createObjectURL(blob);
-              link.download = "member.xlsx";
-              link.click();
-              console.log('下载模板成功');
+              console.log(response)
+              let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+              var link = document.createElement('a')
+              link.href = window.URL.createObjectURL(blob)
+              link.download = 'member.xlsx'
+              link.click()
+              console.log('下载模板成功')
             })
             .catch((error) => {
-              alert(error);
+              alert(error)
             })
         }).catch(() => {
           this.$message({
             type: 'info',
             message: '已取消下载'
-          });
-        });
+          })
+        })
       }
     }
   }

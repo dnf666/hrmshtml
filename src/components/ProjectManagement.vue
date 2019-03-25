@@ -1,10 +1,10 @@
 <template>
   <div>
     <router-view/>
-    <div class="top">项目管理</div>
+    <div class="project_top">项目管理</div>
     <div class="contentP">
       <p>{{this.companyName}}</p>
-      <el-dropdown split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
+      <el-dropdown v-show="permission == 1" split-button type="primary" class="moreMenu" @click="dialogFormVisible = true">
         添加项目
         <el-dialog title="添加项目" :visible.sync="dialogFormVisible" :append-to-body='true' top='100px' width="550px" center>
           <el-form>
@@ -15,7 +15,13 @@
               <el-input class="increaseInput" placeholder="" v-model="addProjectUrl"></el-input>
             </el-form-item>
             <el-form-item label="上线时间" :label-width="formLabelWidth">
-              <el-input class="increaseInput" v-model="addOnlineTime"></el-input>
+              <div class="block">
+                <el-date-picker
+                  v-model="addOnlineTime"
+                  type="datetime"
+                  placeholder="选择日期时间">
+                </el-date-picker>
+              </div>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -25,6 +31,7 @@
         </el-dialog>
       </el-dropdown>
       <el-button
+        v-show="permission == 1"
         type="danger"
         @click.prevent='removeSelection()'
         :disabled="isDisabled"
@@ -61,13 +68,14 @@
         style="width: 100%"
         @selection-change="handleSelectionChange">
         <el-table-column
+          v-if="permission == 1"
           type="selection"
           width="55"
         ></el-table-column>
         <el-table-column
           width="50">
           <template slot-scope="scope">
-            <el-dropdown>
+            <el-dropdown v-show="permission == 1">
               <span class="el-dropdown-link">
                 <i class="editor el-icon-caret-bottom"></i>
               </span>
@@ -163,7 +171,7 @@
     padding: 0;
   }
 
-  .top {
+  .project_top {
     font-size: 19px;
     line-height: 60px;
     padding-left: 20px;
@@ -336,10 +344,12 @@
           email: '',
           name: '',
         }],
-        isIndeterminate: true
+        isIndeterminate: true,
+        permission:''
       }
     },
     created: function () {
+      this.permission = window.sessionStorage.getItem("permission");
       let params = new URLSearchParams();
       params.append('currentPage', this.currentPage);
       params.append('size', this.pagesize);

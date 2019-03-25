@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <el-card class="box-card">
-      <div class="main_title">欢迎来到HRMS</div>
+      <div class="main_title1">欢迎来到HRMS</div>
       <el-input
         class="input"
         placeholder="请输入邮箱"
@@ -99,7 +99,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
-.main_title {
+.main_title1 {
   font-size: 30px;
   font-weight: 500;
   margin: 50px 0 10px 30px;
