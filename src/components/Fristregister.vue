@@ -263,6 +263,8 @@
           if (response.data.status == 0) {
             that.$store.commit('setCompanyId', that.email);
             window.sessionStorage.setItem('companyId', that.email);
+            that.$store.commit('setPermission',1);
+            window.sessionStorage.setItem('permission', 1);
             this.$router.push({
               path: '/register/Secondregister',
             },)
