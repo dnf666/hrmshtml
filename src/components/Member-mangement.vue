@@ -196,45 +196,53 @@
           prop="name"
           label="姓名"
           width="80"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="phoneNumber"
           label="电话"
           width="170"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="email"
           label="邮箱"
           width="170"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="sex"
           label="性别"
+          align="center"
           width="50">
         </el-table-column>
         <el-table-column
           prop="profession"
           label="专业"
+          align="center"
           width="130"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="grade"
           label="年级"
+          align="center"
           width="80">
         </el-table-column>
         <el-table-column
           prop="department"
           label="部门"
           width="100"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="whereAbout"
           label="签约"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
       </el-table>

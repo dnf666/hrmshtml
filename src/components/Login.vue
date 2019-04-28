@@ -1,7 +1,7 @@
 <template>
   <div class="box">
-    <el-card class="box-card">
-      <div class="main_title1">欢迎来到HRMS</div>
+    <el-card class="login-box-card">
+      <div class="main_title2">欢迎来到HRMS</div>
       <el-input
         class="input"
         placeholder="请输入邮箱"
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-  const PREFIX = 'http://localhost:8081';
+  const PREFIX = 'http://localhost:8081/';
 export default {
   name: 'Login',
   data() {
@@ -75,16 +75,6 @@ export default {
     },
     changePassword(e) {
     },
-    // //验证密码
-    // ckPwd(str) {
-    //   var myreg = /^[0-9a-z]{6,20}$/;
-    //   return myreg.test(str);
-    // },
-    // //验证邮箱
-    // ckMail(str) {
-    //   var myreg = /^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/;
-    //   return myreg.test(str);
-    // }
   }
 };
 </script>
@@ -93,13 +83,14 @@ export default {
 .box {
   position: absolute;
   width: 100%;
+  background-color: #F5F5F5;
   height: 100%;
   top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.main_title1 {
+.main_title2 {
   font-size: 30px;
   font-weight: 500;
   margin: 50px 0 10px 30px;
@@ -114,7 +105,7 @@ export default {
   padding: 18px 0;
 }
 
-.box-card {
+.login-box-card {
   width: 700px;
   display: flex;
   flex-direction: column;

@@ -11,17 +11,14 @@
             <el-form-item label="项目名称" :label-width="formLabelWidth">
               <el-input class="increaseInput" placeholder="正确填写项目名" v-model="addProjectName"></el-input>
             </el-form-item>
-            <el-form-item label="项目地址" :label-width="formLabelWidth">
-              <el-input class="increaseInput" placeholder="" v-model="addProjectUrl"></el-input>
+            <el-form-item label="IP地址" :label-width="formLabelWidth">
+              <el-input class="increaseInput" placeholder="正确填写项目名" v-model="addProjectIp"></el-input>
             </el-form-item>
-            <el-form-item label="上线时间" :label-width="formLabelWidth">
-              <div class="block">
-                <el-date-picker
-                  v-model="addOnlineTime"
-                  type="datetime"
-                  placeholder="选择日期时间">
-                </el-date-picker>
-              </div>
+            <el-form-item label="端口" :label-width="formLabelWidth">
+              <el-input class="increaseInput" placeholder="正确填写端口" v-model="addProjectPort"></el-input>
+            </el-form-item>
+            <el-form-item label="路径" :label-width="formLabelWidth">
+              <el-input class="increaseInput" placeholder="正确填写路径" v-model="addProjectLocation"></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -30,14 +27,6 @@
           </div>
         </el-dialog>
       </el-dropdown>
-      <el-button
-        v-show="permission == 1"
-        type="danger"
-        @click.prevent='removeSelection()'
-        :disabled="isDisabled"
-      >
-        删除选中项目
-      </el-button>
       <el-button
         class="filterDown"
         @click="show3 = !show3"
@@ -50,10 +39,9 @@
         <el-collapse-transition>
           <div v-show="show3">
             <div class="transition-box">
-              <span>项目编号：<el-input class="filter" v-model="filterProjectId"></el-input></span>
               <span>项目名称：<el-input class="filter" v-model="filterProjectName"></el-input></span>
-              <span>项目网址：<el-input class="filter" v-model="filterProjectUrl"></el-input></span><br>
-              <span>上线时间：<el-input class="filter" v-model="filterOnlineTime"></el-input></span>
+              <span>项目IP：<el-input class="filter" v-model="filterProjectIp"></el-input></span><br>
+              <span>项目端口：<el-input class="filter" v-model="filterProjectPorts"></el-input></span>
               <el-button class="primary" type="primary" style="margin-left:160px;" @click="getFilterProjectInfo">过滤</el-button>
             </div>
           </div>
@@ -65,91 +53,86 @@
         ref="multipleTable"
         :data="tableData"
         tooltip-effect="dark"
-        style="width: 100%"
-        @selection-change="handleSelectionChange">
+        style="width: 100%">
         <el-table-column
-          v-if="permission == 1"
-          type="selection"
-          width="55"
-        ></el-table-column>
+          prop="name"
+          label="项目名称"
+          align="center"
+          width="250"
+          :show-overflow-tooltip="true">
+        </el-table-column>
         <el-table-column
-          width="50">
+          prop="ip"
+          align="center"
+          label="IP地址"
+          width="300"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
+          prop="ports"
+          label="项目端口"
+          align="center"
+          width="100"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
+          prop="location"
+          label="项目路径"
+          align="center"
+          width="300"
+          :show-overflow-tooltip="true">
+        </el-table-column>
+        <el-table-column
+          align="center"
+          label="操作"
+          :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <el-dropdown v-show="permission == 1">
-              <span class="el-dropdown-link">
-                <i class="editor el-icon-caret-bottom"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>
-                  <router-link :to="{ path:'/ProjectManagement/Editor',query: { projectOriginalInfo: scope.row} }">
-                    编辑项目
-                  </router-link>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <span
-                    @click="deleteRow(scope.row.projectId)">
-                  删除项目
-                  </span>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <span
-                    @click="dialogInfoVisible=true">
-                  通知报警
-                  </span>
-                </el-dropdown-item>
-                <el-dialog
-                  title="导入信息"
-                  :visible.sync="dialogInfoVisible"
-                  top='50px'
-                  left='50px'
-                  width="500px"
-                  :append-to-body='true'
-                  :before-close="handleClose">
-                  <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-                  <div style="margin: 15px 0;"></div>
-                  <el-checkbox-group v-model="checkedMembers" @change="handleCheckedMembersChange">
-                    <el-checkbox v-for="member in members" :label="member.name" :key="member.name">{{member.name}}</el-checkbox>
-                  </el-checkbox-group>
-                  <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogInfoVisible = false">取 消</el-button>
-              <el-button type="primary" @click="infoMember(scope.row.projectId)">确 定</el-button>
-            </span>
-                </el-dialog>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <el-button type="text" size="small" @click="editorProject(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="deleteRow(scope.row.projectId)">删除</el-button>
+            <el-button type="text" size="small" @click="listProjectInTomcat(scope.row)">查看</el-button>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="projectId"
-          label="项目编号"
-          width="250"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="projectName"
-          label="项目名称"
-          width="250"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="projectUrl"
-          label="项目网址"
-          width="250"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="onlineTime"
-          label="上线时间"
-          width="250"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="status"
-          label="状态"
-          width="250"
-          :show-overflow-tooltip="true">
-        </el-table-column>
       </el-table>
+<el-dialog title="tomcat详情" :visible.sync="tomcatVisible" :append-to-body='true' top='100px' width="400px" center>
+              <el-table
+                id='out-table1'
+                class="bookData"
+                ref="multipleTable"
+                :data="webapp"
+                tooltip-effect="dark"
+                :highlight-current-row="true"
+                style="width: 100%"
+              >
+                <el-table-column
+                  prop="name"
+                  align="center"
+                  label="项目名"
+                  width="200"
+                  :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column
+                  prop="status"
+                  align="center"
+                  label="状态"
+                  width="50"
+                  :show-overflow-tooltip="true">
+                </el-table-column>
+                <el-table-column
+                  fixed="right"
+                  label="操作"
+                  width="100">
+                  <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="operateProject(scope.row.name,'start')">重启</el-button>
+                    <el-button type="text" size="small" @click="operateProject(scope.row.name,'stop')">停止</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="tomcatVisible=false">关闭</el-button>
+              </div>
+            </el-dialog>
+
       <el-pagination
         class="pagination"
         background
@@ -169,6 +152,21 @@
   * {
     margin: 0;
     padding: 0;
+  }
+
+  .demo-table-expand {
+    font-size: 0;
+  }
+
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
   }
 
   .project_top {
@@ -197,9 +195,6 @@
     cursor: pointer;
   }
 
-  /* .content:nth-child(4){
-    height:0px!important;
-  } */
   .moreMenu {
     padding-left: 30px;
     display: inline-block;
@@ -238,10 +233,6 @@
     border: 0;
   }
 
-  /* .moreMenu div :first-child{
-    width: 60px;
-    height: 30px;
-  } */
   #deleteSelection {
     margin-left: 5px;
     margin-top: 16px;
@@ -297,271 +288,320 @@
   }
 </style>
 <script>
-  var COMPANYID = window.sessionStorage.getItem("companyId");
-  const PREFIX = 'http://localhost:8081/hrms/';
-  export default {
-    data() {
-      return {
-        companyName: '',
-        projectCount: 0,
-        show3: false,
-        currentPage: 1,
-        pagesize: 10,
-        tableData: [{
-          companyId: '',
-          projectId: '',
-          projectUrl: '',
-          projectName: '',
-          onlineTime: '',
-          status: '',
-        }],
-        dialogInfoVisible: false,
-        multipleSelection: [],
-        dialogFormVisible: false,
-        dialogVisible: false,
-        editFormVisible: false,
-        formLabelWidth: '140px',
-        checked: true,
-        addCompanyId: '',
-        addProjectId: '',
-        addProjectName: '',
-        addProjectUrl: '',
-        addOnlineTime: '',
+var COMPANYID = window.sessionStorage.getItem('companyId')
+const PREFIX = 'http://localhost:8081/hrms/'
+export default {
+  data () {
+    return {
+      companyName: '',
+      projectCount: 0,
+      show3: false,
+      currentPage: 1,
+      pagesize: 10,
+      tableData: [{
         companyId: '',
         projectId: '',
-        projectName: '',
-        projectUrl: '',
-        onlineTime: '',
-        isDisabled: false,
-        fileList: '',
-        filterProjectId: '',
-        filterProjectName: '',
-        filterProjectUrl: '',
-        filterOnlineTime: '',
-        checkAll: false,
-        checkedMembers: [],
-        members: [{
-          email: '',
-          name: '',
-        }],
-        isIndeterminate: true,
-        permission:''
+        ports: '',
+        name: '',
+        ip: '',
+        location: ''
+
+      }],
+      webapp: [{
+        name: '',
+        status: ''
+      }],
+      dialogInfoVisible: false,
+      multipleSelection: [],
+      dialogFormVisible: false,
+      dialogVisible: false,
+      editFormVisible: false,
+      formLabelWidth: '140px',
+      checked: true,
+      addProjectIp: '',
+      addProjectPort: '',
+      addProjectName: '',
+      addProjectLocation: '',
+      companyId: '',
+      projectId: '',
+      name: '',
+      ip: '',
+      ports: '',
+      location: '',
+      tomcatVisible: false,
+      isDisabled: false,
+      filterProjectIp: '',
+      filterProjectPorts: '',
+      filterProjectName: '',
+      checkAll: false,
+      checkedMembers: [],
+      members: [{
+        email: '',
+        name: ''
+      }],
+      isIndeterminate: true,
+      permission: '',
+      // 暂存
+      temp: ''
+    }
+  },
+  created: function () {
+    this.permission = window.sessionStorage.getItem('permission')
+    let params = new URLSearchParams()
+    params.append('currentPage', this.currentPage)
+    params.append('size', this.pagesize)
+    this.$axios.get(PREFIX + '/company/company.do', {
+      params: {
+        email: COMPANYID
       }
+    }).then((response) => {
+      this.companyName = response.data.object.name
+    })
+    this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+      companyId: COMPANYID
+    }).then((res) => {
+      this.tableData = res.data.object.data
+      this.projectCount = res.data.object.recordSize
+    })
+    this.$axios.get(PREFIX + '/member/member.do?companyId=' + COMPANYID, {}).then((res) => {
+      this.members = res.data.object
+      console.log(this.members)
+    })
+  },
+  methods: {
+    editorProject: function (projectInfo) {
+      this.$router.push({path: '/ProjectManagement/Editor', query: { projectOriginalInfo: projectInfo} })
     },
-    created: function () {
-      this.permission = window.sessionStorage.getItem("permission");
-      let params = new URLSearchParams();
-      params.append('currentPage', this.currentPage);
-      params.append('size', this.pagesize);
-      this.$axios.get(PREFIX + '/company/company.do', {
-        params: {
-          email: COMPANYID
-        }
-      }).then((response) => {
-        this.companyName = response.data.object.name;
-      });
-      this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
-        companyId: COMPANYID
+    operateProject: function (name, operation) {
+      let ip = this.temp.ip
+      let ports = this.temp.ports
+      this.$axios.post(PREFIX + 'project/operate.do?operation=' + operation, {
+        companyId: COMPANYID,
+        ip: ip,
+        ports: ports,
+        name: name
       }).then((res) => {
-        this.tableData = res.data.object.data;
-        this.projectCount = res.data.object.recordSize;
-      });
-      this.$axios.get(PREFIX + '/member/member.do?companyId=' + COMPANYID, {}).then((res) => {
-        this.members = res.data.object;
-        console.log(this.members);
-      })
-    },
-    methods: {
-      addDataSave: function () {
-        this.dialogFormVisible = false;
-        this.$axios.post(PREFIX + 'project/project.do', {
-          companyId: COMPANYID,
-          projectName: this.addProjectName,
-          projectUrl: this.addProjectUrl,
-          onlineTime: this.addOnlineTime
-        })
-          .then((res) => {
-            if (res.data.code == 1) {
-              this.$message({
-                type: 'info',
-                message: '添加成功!'
-              });
-              window.location.reload();
-            }
-          }).catch(function (error) {
-          alert(error);
-        })
-      },
-      getFilterProjectInfo() {
-        let params = new URLSearchParams();
-        params.append('currentPage', this.currentPage);
-        params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
-          companyId: COMPANYID,
-          projectId: this.filterProjectId,
-          projectName: this.filterProjectName,
-          projectUrl: this.filterProjectUrl,
-          onlineTime: this.filterOnlineTime
-        }).then((response) => {
-          this.tableData = response.data.object.data;
-          this.projectCount = response.data.object.recordSize;
-        }).catch((error) => {
-          alert(error);
-        });
-      },
-      infoMember(index) {
-        let emails = [];
-        let checked = this.checkedMembers;
-        let members = this.members;
-        this.$confirm('此操作将发送邮件给选中联系人, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          for (let i = 0; i < checked.length; i++) {
-            for (let j = 0; j < members.length; j++) {
-              if (checked[i] == members[j].name) {
-                emails[i] = members[j].email;
-                break;
-              }
-            }
-          }
-          let params = new URLSearchParams();
-          params.append('companyId', COMPANYID);
-          params.append('projectId', index);
-          this.$axios.post(PREFIX + '/project/info.do?' + params.toString(), {
-            memberEmails: emails.toString(),
-          }).then((response) => {
-            if (response.data.code == 1) {
-              this.$message({
-                type: 'info',
-                message: '发送成功!'
-              });
-            } else {
-              this.$message({
-                type: 'warn',
-                message: '发送失败!'
-              });
-            }
-          })
-        })
-      },
-      deleteRow(index) {
-        let data = index;
-        this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          this.$axios.post(PREFIX + '/project/delProject.do', {
-            companyId: COMPANYID,
-            projectId: data
-          }).then((response) => {
-            if (response.data.code == 1) {
-              for (let i = 0; i < this.tableData.length; i++) {
-                if (data === this.tableData[i].projectId) {
-                  this.tableData.splice(i, 1);
-                }
-              }
-              this.projectCount--;
-              this.$message({
-                type: 'info',
-                message: '删除成功!'
-              });
-            } else {
-              this.$message({
-                type: 'info',
-                message: '删除失败!'
-              });
-            }
-          })
-        })
-      },
-      handleSizeChange: function (size) {
-        this.pagesize = size;
-      },
-      handleCurrentChange: function (currentPage) {
-        this.currentPage = currentPage;
-        let params = new URLSearchParams();
-        params.append('currentPage', this.currentPage);
-        params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
-          companyId: COMPANYID
-        })
-          .then((response) => {
-            console.log('展示第' + this.currentPage + '页项目信息成功');
-            this.tableData = response.data.object.data;
-            this.projectCount = response.data.object.recordSize;
-          })
-          .catch((error) => {
-            alert(error);
-          });
-      },
-      toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row)
+        if (res.data.code === 1) {
+          this.$message({
+            type: 'success',
+            message: res.data.msg
           })
         } else {
-          this.$refs.multipleTable.clearSelection()
-        }
-      },
-      handleSelectionChange(val) {
-        for (let i = 0; i < val.length; i++) {
-          this.multipleSelection[i] = val[i].projectId;
-        }
-      },
-//删除选中行数据(success)
-      removeSelection() {
-        this.$confirm('是否删除当前选中项目？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }).then(() => {
-          // todo 违反了rest原则。 但是现在又传不过去
-          this.$axios.post(PREFIX + '/project/delProjects.do?companyId=' + COMPANYID, {
-            projectIds: this.multipleSelection,
+          this.$message({
+            type: 'warning',
+            message: res.data.msg
           })
-            .then(() => {
-              for (let i = 0; i < this.multipleSelection.length; i++) {
-                let val = this.multipleSelection[i];
-                for (let j = 0; j < this.tableData.length; j++) {
-                  if (val === this.tableData[j].projectId) {
-                    this.tableData.splice(i, 1);
-                  }
+        }
+      })
+    },
+
+    listProjectInTomcat: function (project) {
+      this.$axios.post(PREFIX + 'project/list.do', {
+        companyId: COMPANYID,
+        ip: project.ip,
+        ports: project.ports
+      }).then((res) => {
+        if (res.data.code === 1) {
+          this.webapp = res.data.object
+          this.temp = project
+          this.tomcatVisible = true
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.msg
+          })
+        }
+      })
+    },
+    addDataSave: function () {
+      this.dialogFormVisible = false
+      this.$axios.post(PREFIX + 'project/project.do', {
+        companyId: COMPANYID,
+        name: this.addProjectName,
+        ip: this.addProjectIp,
+        ports: this.addProjectPort,
+        location: this.addProjectLocation
+      })
+        .then((res) => {
+          if (res.data.code === 1) {
+            this.$message({
+              type: 'info',
+              message: '添加成功!'
+            })
+            window.location.reload()
+          }
+        }).catch(function (error) {
+          alert(error)
+        })
+    },
+    getFilterProjectInfo () {
+      let params = new URLSearchParams()
+      params.append('currentPage', this.currentPage)
+      params.append('size', this.pagesize)
+      this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+        companyId: COMPANYID,
+        name: this.filterProjectName,
+        ip: this.filterProjectIp,
+        ports: this.filterProjectPorts
+      }).then((response) => {
+        this.tableData = response.data.object.data
+        this.projectCount = response.data.object.recordSize
+      }).catch((error) => {
+        alert(error)
+      })
+    },
+    infoMember (index) {
+      let emails = []
+      let checked = this.checkedMembers
+      let members = this.members
+      this.$confirm('此操作将发送邮件给选中联系人, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        for (let i = 0; i < checked.length; i++) {
+          for (let j = 0; j < members.length; j++) {
+            if (checked[i] == members[j].name) {
+              emails[i] = members[j].email
+              break
+            }
+          }
+        }
+        let params = new URLSearchParams()
+        params.append('companyId', COMPANYID)
+        params.append('projectId', index)
+        this.$axios.post(PREFIX + '/project/info.do?' + params.toString(), {
+          memberEmails: emails.toString()
+        }).then((response) => {
+          if (response.data.code == 1) {
+            this.$message({
+              type: 'info',
+              message: '发送成功!'
+            })
+          } else {
+            this.$message({
+              type: 'warn',
+              message: '发送失败!'
+            })
+          }
+        })
+      })
+    },
+    deleteRow (index) {
+      let data = index
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.post(PREFIX + '/project/delProject.do', {
+          companyId: COMPANYID,
+          projectId: data
+        }).then((response) => {
+          if (response.data.code == 1) {
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (data === this.tableData[i].projectId) {
+                this.tableData.splice(i, 1)
+              }
+            }
+            this.projectCount--
+            this.$message({
+              type: 'info',
+              message: '删除成功!'
+            })
+          } else {
+            this.$message({
+              type: 'info',
+              message: '删除失败!'
+            })
+          }
+        })
+      })
+    },
+    handleSizeChange: function (size) {
+      this.pagesize = size
+    },
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage
+      let params = new URLSearchParams()
+      params.append('currentPage', this.currentPage)
+      params.append('size', this.pagesize)
+      this.$axios.post(PREFIX + '/project/option.do?' + params.toString(), {
+        companyId: COMPANYID
+      })
+        .then((response) => {
+          console.log('展示第' + this.currentPage + '页项目信息成功')
+          this.tableData = response.data.object.data
+          this.projectCount = response.data.object.recordSize
+        })
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    toggleSelection (rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
+      }
+    },
+    handleSelectionChange (val) {
+      for (let i = 0; i < val.length; i++) {
+        this.multipleSelection[i] = val[i].projectId
+      }
+    },
+    // 删除选中行数据(success)
+    removeSelection () {
+      this.$confirm('是否删除当前选中项目？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // todo 违反了rest原则。 但是现在又传不过去
+        this.$axios.post(PREFIX + '/project/delProjects.do?companyId=' + COMPANYID, {
+          projectIds: this.multipleSelection
+        })
+          .then(() => {
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+              let val = this.multipleSelection[i]
+              for (let j = 0; j < this.tableData.length; j++) {
+                if (val === this.tableData[j].projectId) {
+                  this.tableData.splice(i, 1)
                 }
               }
-              this.projectCount--;
-            })
-            .catch((error) => {
-              alert(error);
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
-
-      },
-      handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(() => {
-            done()
+            }
+            this.projectCount--
           })
-          .catch(() => {
+          .catch((error) => {
+            alert(error)
           })
-      },
-      handleCheckAllChange(val) {
-        this.checkedMembers = val ? this.members : [];
-        this.isIndeterminate = false;
-      },
-      handleCheckedMembersChange(value) {
-        let checkedCount = value.length;
-        this.checkAll = checkedCount === this.members.length;
-        this.isIndeterminate = checkedCount > 0 && checkedCount < this.members.length;
-        console.log(this.checkedMembers);
-      }
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    handleClose (done) {
+      this.$confirm('确认关闭？')
+        .then(() => {
+          done()
+        })
+        .catch(() => {
+        })
+    },
+    handleCheckAllChange (val) {
+      this.checkedMembers = val ? this.members : []
+      this.isIndeterminate = false
+    },
+    handleCheckedMembersChange (value) {
+      let checkedCount = value.length
+      this.checkAll = checkedCount === this.members.length
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.members.length
+      console.log(this.checkedMembers)
     }
   }
+}
 </script>

@@ -12,17 +12,14 @@
     <el-tabs v-model="activeName" class="tabsEditor" type="card">
       <el-tab-pane label="基本信息" name="first">
         <el-form>
-          <el-form-item label="公司ID*" :label-width="formLabelWidth">
-            <el-input class="increaseInput" disabled="disabled" v-model="companyId" placeholder="公司名称"></el-input>
-          </el-form-item>
           <el-form-item label="学号*" :label-width="formLabelWidth">
             <el-input class="increaseInput" disabled="disabled" v-model="num" placeholder="正确填写学号"></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="formLabelWidth">
             <el-input class="increaseInput" v-model="name" placeholder="真实姓名"></el-input>
           </el-form-item>
-          <el-form-item label="邮箱" :label-width="formLabelWidth">
-            <el-input class="increaseInput" v-model="email" placeholder="登录邮箱"></el-input>
+          <el-form-item label="邮箱*" :label-width="formLabelWidth">
+            <el-input class="increaseInput" disabled="disabled" v-model="email" placeholder="登录邮箱"></el-input>
           </el-form-item>
           <el-form-item label="性别" :label-width="formLabelWidth">
             <el-radio v-model="radio" label="0">男</el-radio>
@@ -36,6 +33,9 @@
           </el-form-item>
           <el-form-item label="专业" :label-width="formLabelWidth">
             <el-input class="increaseInput" v-model="profession"></el-input>
+          </el-form-item>
+          <el-form-item label="签约" :label-width="formLabelWidth">
+            <el-input class="increaseInput" v-model="whereAbout"></el-input>
           </el-form-item>
         </el-form>
         <div class="sure">
@@ -88,7 +88,8 @@ export default {
       profession: this.$route.query.memberOriginalInfo.profession,
       department: this.$route.query.memberOriginalInfo.department,
       grade: this.$route.query.memberOriginalInfo.grade,
-      phoneNumber: this.$route.query.memberOriginalInfo.phoneNumber
+      phoneNumber: this.$route.query.memberOriginalInfo.phoneNumber,
+      whereAbout:this.$route.query.memberOriginalInfo.whereAbout
     }
   },
   created: function() {
