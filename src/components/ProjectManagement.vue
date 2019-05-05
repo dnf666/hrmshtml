@@ -30,11 +30,13 @@
       <el-button
         class="filterDown"
         @click="show3 = !show3"
-      >过滤
+      >筛选
       </el-button>
-      <span id='state'>
-        ({{projectCount}}个项目)
-      </span>
+      <el-button
+        plain
+        @click="open()">
+        使用手册
+      </el-button>
       <div style="margin-top: 10px;">
         <el-collapse-transition>
           <div v-show="show3">
@@ -42,7 +44,7 @@
               <span>项目名称：<el-input class="filter" v-model="filterProjectName"></el-input></span>
               <span>项目IP：<el-input class="filter" v-model="filterProjectIp"></el-input></span><br>
               <span>项目端口：<el-input class="filter" v-model="filterProjectPorts"></el-input></span>
-              <el-button class="primary" type="primary" style="margin-left:160px;" @click="getFilterProjectInfo">过滤</el-button>
+              <el-button class="primary" type="primary" style="margin-left:160px;" @click="getFilterProjectInfo">筛选</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -52,6 +54,8 @@
         class="projectData"
         ref="multipleTable"
         :data="tableData"
+        highlight-current-row="true"
+        v-loading="loading"
         tooltip-effect="dark"
         style="width: 100%">
         <el-table-column
@@ -85,6 +89,7 @@
         <el-table-column
           align="center"
           label="操作"
+          v-show="permission == 1"
           :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="editorProject(scope.row)">编辑</el-button>
@@ -107,7 +112,7 @@
                   prop="name"
                   align="center"
                   label="项目名"
-                  width="200"
+                  width="150"
                   :show-overflow-tooltip="true">
                 </el-table-column>
                 <el-table-column
@@ -120,6 +125,7 @@
                 <el-table-column
                   fixed="right"
                   label="操作"
+                  align="center"
                   width="100">
                   <template slot-scope="scope">
                     <el-button type="text" size="small" @click="operateProject(scope.row.name,'start')">重启</el-button>
@@ -127,7 +133,6 @@
                   </template>
                 </el-table-column>
               </el-table>
-
               <div slot="footer" class="dialog-footer">
                 <el-button @click="tomcatVisible=false">关闭</el-button>
               </div>
@@ -342,10 +347,12 @@ export default {
       isIndeterminate: true,
       permission: '',
       // 暂存
-      temp: ''
+      temp: '',
+      loading: false
     }
   },
   created: function () {
+    this.loading = true
     this.permission = window.sessionStorage.getItem('permission')
     let params = new URLSearchParams()
     params.append('currentPage', this.currentPage)
@@ -367,8 +374,22 @@ export default {
       this.members = res.data.object
       console.log(this.members)
     })
+    this.loading = false
   },
   methods: {
+    open () {
+      this.$notify({
+        title: '添加须知',
+        message: '在tomcat的conf目录下tomcat-users.xml添加如下代码\n' +
+          '<role rolename="manager-gui"/>\n' +
+          '<role rolename="manager-script"/>\n' +
+          '<role rolename="manager-jmx"/>\n' +
+          '<role rolename="manager-status"/>\n' +
+          '<user username="tomcat" password="tomcat" roles="manager-gui,manager-script,manager-jmx,manager-status"/>\n' +
+          '并重启tomcat',
+        duration: 0
+      })
+    },
     editorProject: function (projectInfo) {
       this.$router.push({path: '/ProjectManagement/Editor', query: { projectOriginalInfo: projectInfo} })
     },

@@ -29,7 +29,7 @@
               <el-menu-item index="/CompanyInfo">
                 <i class="el-icon-info"></i>
                 <span slot="title">
-                  公司信息
+                  组织信息
                 </span>
               </el-menu-item>
             </router-link>

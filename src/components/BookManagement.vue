@@ -81,20 +81,16 @@
       <el-button
         class="filterDown"
         @click="show3 = !show3"
-      >过滤
+      >筛选
       </el-button>
-      <span id='state'>
-        (共有 {{bookCount}} 本书)
-      </span>
       <div style="margin-top: 10px;">
         <el-collapse-transition>
           <div v-show="show3">
             <div class="transition-box">
-              <span>图书ID：<el-input class="filter" v-model="filterBookId"></el-input></span>
-              <span>图书名：<el-input class="filter" v-model="filterBookName"></el-input></span><br>
-              <span>书类型：<el-input class="filter" v-model="filterCategory"></el-input></span>
+              <span>图书名：<el-input class="filter" v-model="filterBookName"></el-input></span>
+              <span>书类型：<el-input class="filter" v-model="filterCategory"></el-input></span><br>
               <span>版本：<el-input class="filter" v-model="filterVersion"></el-input></span>
-              <el-button class="primary" type="primary" @click="filterBook">过滤</el-button>
+              <el-button class="primary" type="primary" @click="filterBook">筛选</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -140,37 +136,31 @@
         </el-table-column>
         <!-- 成员信息 -->
         <el-table-column
-          id="bookId"
-          prop="bookId"
-          label="图书编号"
-          width="300"
-          :show-overflow-tooltip="true">
-          <template slot-scope="scope">{{ scope.row.bookId }}</template>
-        </el-table-column>
-        <el-table-column
           prop="bookName"
           label="图书名"
+          align="center"
           width="200"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="category"
           label="类型"
+          align="center"
           width="170">
-        </el-table-column>
-        <el-table-column
-          prop="quantity"
-          label="数量"
-          width="300"
-          :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="version"
           label="图书版本"
-          width="170"
+          width="300"
+          align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
-
+        <el-table-column
+          prop="quantity"
+          label="数量"
+          align="center"
+          :show-overflow-tooltip="true">
+        </el-table-column>
       </el-table>
 
       <el-pagination
@@ -318,318 +308,327 @@
   }
 </style>
 <script>
-  var COMPANYID = window.sessionStorage.getItem("companyId");
-  const PREFIX = 'http://localhost:8081/hrms/';
-  export default {
-    data() {
-      return {
-        companyName:'',
-        bookCount:0,
-        activeNames: ['1'],
-        input10: '',
-        show3: false,
-        currentPage: 1,
-        pagesize: 10,
-        tableData: [
-          {
-            companyId: '',
-            bookId: '',
-            bookName: '',
-            category: '',
-            num: '',
-            version: '',
-          }
-        ],
-        isDisabled: false,
-        dialogFormVisible: false,
-        dialogVisible: false,
-        formLabelWidth: '140px',
-        //显示加载中样式
-        loading: false,
-        //搜索表单
-        searchForm: {
-          id: '',
-          name: '',
-          state: ''
-        },
-        //多选值
-        multipleSelection: [],
-        //删除的弹出框
-        deleteVisible: false,
-        //编辑界面是否显示
-        editFormVisible: false,
-        addname: '',
-        addcategory: '',
-        addquantity: '',
-        addversion: '',
-        newBookId: '',
-        newBookName: '',
-        newCategory: '',
-        newQuantity: '',
-        newVersion: '',
-        filterBookId: '',
-        filterBookName: '',
-        filterCategory: '',
-        filterQuantity: '',
-        filterVersion: '',
-        file:'',
-        permission:''
-      }
-    },
-    created: function () {
-      this.permission = window.sessionStorage.getItem("permission");
-      this.$axios.get(PREFIX + '/company/company.do', {
-        params: {
-          email: COMPANYID
+var COMPANYID = window.sessionStorage.getItem('companyId')
+const PREFIX = 'http://localhost:8081/hrms/'
+export default {
+  data () {
+    return {
+      companyName: '',
+      bookCount: 0,
+      activeNames: ['1'],
+      input10: '',
+      show3: false,
+      currentPage: 1,
+      pagesize: 10,
+      tableData: [
+        {
+          companyId: '',
+          bookId: '',
+          bookName: '',
+          category: '',
+          num: '',
+          version: ''
         }
-      })
-        .then((response) => {
-          this.companyName = response.data.object.name;
-        });
-      let params = new URLSearchParams();
-      params.append('currentPage', this.currentPage);
-      params.append('size', this.pagesize);
-      this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), {
-        companyId: COMPANYID
-      }).then((res) => {
-        this.tableData = res.data.object.data;
-        this.bookCount = res.data.object.recordSize;
-      }).catch(function (error) {
-
-      })
-    },
-    methods: {
-      removeSelection() {
-        this.$confirm('是否删除当前选中项目？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }).then(() => {
-          // todo 违反了rest原则。 但是现在又传不过去
-          this.$axios.post(PREFIX + '/book/delBook.do', {
-            bookId:this.multipleSelection.toString(),
-            companyId:COMPANYID
-          })
-            .then((response) => {
-              window.location.reload();
-            })
-            .catch((error) => {
-              alert(error);
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-        });
-
+      ],
+      isDisabled: false,
+      dialogFormVisible: false,
+      dialogVisible: false,
+      formLabelWidth: '140px',
+      // 显示加载中样式
+      loading: false,
+      // 搜索表单
+      searchForm: {
+        id: '',
+        name: '',
+        state: ''
       },
-      handleCurrentChange(currentPage) {
-        this.currentPage = currentPage;
-        let params = new URLSearchParams();
-        params.append('currentPage', this.currentPage);
-        params.append('size', this.pagesize);
-        this.$axios.post(PREFIX + '/book/filter.do?' + params.toString(), {
+      // 多选值
+      multipleSelection: [],
+      // 删除的弹出框
+      deleteVisible: false,
+      // 编辑界面是否显示
+      editFormVisible: false,
+      addname: '',
+      addcategory: '',
+      addquantity: '',
+      addversion: '',
+      newBookId: '',
+      newBookName: '',
+      newCategory: '',
+      newQuantity: '',
+      newVersion: '',
+      filterBookId: '',
+      filterBookName: '',
+      filterCategory: '',
+      filterQuantity: '',
+      filterVersion: '',
+      file: '',
+      permission: ''
+    }
+  },
+  created: function () {
+    this.permission = window.sessionStorage.getItem('permission')
+    this.$axios.get(PREFIX + '/company/company.do', {
+      params: {
+        email: COMPANYID
+      }
+    })
+      .then((response) => {
+        this.companyName = response.data.object.name
+      })
+    let params = new URLSearchParams()
+    params.append('currentPage', this.currentPage)
+    params.append('size', this.pagesize)
+    this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), {
+      companyId: COMPANYID
+    }).then((res) => {
+      this.tableData = res.data.object.data
+      this.bookCount = res.data.object.recordSize
+    }).catch(function (error) {
+
+    })
+  },
+  methods: {
+    removeSelection () {
+      this.$confirm('是否删除当前选中项目？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // todo 违反了rest原则。 但是现在又传不过去
+        this.$axios.post(PREFIX + '/book/delBook.do', {
+          bookId: this.multipleSelection.toString(),
           companyId: COMPANYID
         })
           .then((response) => {
-            this.tableData = response.data.object.data;
+            window.location.reload()
           })
           .catch((error) => {
-            alert(error);
-          });
-      },
-      getExcel(event) {
-        this.file = event.target.files[0];
-      },
-      //上传Excel表到数据库(success)
-      uploadExcel(event) {
-        //阻止元素发生默认行为
-        event.preventDefault();
-        let formData = new FormData();
-        formData.append("file", this.file);
-        formData.append("companyId",COMPANYID);
-        this.$axios.post(PREFIX + 'book/excel.do', formData)
-          .then((response) => {
-            this.dialogVisible = false;
+            alert(error)
           })
-          .catch((error) => {
-            console.log('上传文件失败');
-            alert(error);
-          })
-      },
-      downloadExcel() {
-        this.$confirm('是否下载当前数据？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'info',
-        }).then(() => {
-          let book = new Object;
-          if (this.filterBookId != '') {
-            book.bookId = this.filterBookId;
-          }
-          book.companyId = COMPANYID;
-          if (this.filterBookName != '') {
-            book.bookName = this.filterBookName;
-          }
-          if (this.filterCategory != '') {
-            book.category = this.filterCategory;
-          }
-          if (this.filterVersion != '') {
-            book.version = this.filterVersion;
-          }
-          if (this.quantity != '') {
-            book.quantity = parseInt(this.filterQuantity);
-          }
-          book.version = this.version;
-          this.$axios.post(PREFIX+'book/createExcel.do', book,{responseType:"arraybuffer"})
-            .then((response) => {
-              console.log(response);
-              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
-              var link = document.createElement('a');
-              link.href = window.URL.createObjectURL(blob);
-              link.download = COMPANYID+"book.xls";
-              link.click();
-              this.dialogVisible = false;
-            }).catch(() => {
+          message: '已取消删除'
+        })
+      })
+    },
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
+      let params = new URLSearchParams()
+      params.append('currentPage', this.currentPage)
+      params.append('size', this.pagesize)
+      this.$axios.post(PREFIX + '/book/filter.do?' + params.toString(), {
+        companyId: COMPANYID
+      })
+        .then((response) => {
+          this.tableData = response.data.object.data
+        })
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    getExcel (event) {
+      this.file = event.target.files[0]
+    },
+    // 上传Excel表到数据库(success)
+    uploadExcel (event) {
+      // 阻止元素发生默认行为
+      event.preventDefault()
+      let formData = new FormData()
+      formData.append('file', this.file)
+      formData.append('companyId', COMPANYID)
+      this.$axios.post(PREFIX + 'book/excel.do', formData)
+        .then((response) => {
+          this.dialogVisible = false
+          if (response.data.code == 1) {
+            this.$message({
+              type: 'success',
+              message: response.data.msg
+            })
+            window.location.reload()
+          } else {
+            this.$message({
+              type: 'error',
+              message: response.data.msg
+            })
+          }}).catch((error) => {
+          console.log('上传文件失败')
+          alert(error)
+        })
+    },
+    downloadExcel () {
+      this.$confirm('是否下载当前数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(() => {
+        let book = new Object()
+        if (this.filterBookId != '') {
+          book.bookId = this.filterBookId
+        }
+        book.companyId = COMPANYID
+        if (this.filterBookName != '') {
+          book.bookName = this.filterBookName
+        }
+        if (this.filterCategory != '') {
+          book.category = this.filterCategory
+        }
+        if (this.filterVersion != '') {
+          book.version = this.filterVersion
+        }
+        if (this.quantity != '') {
+          book.quantity = parseInt(this.filterQuantity)
+        }
+        book.version = this.version
+        this.$axios.post(PREFIX + 'book/createExcel.do', book, {responseType: 'arraybuffer'})
+          .then((response) => {
+            console.log(response)
+            let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+            var link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = COMPANYID + 'book.xls'
+            link.click()
+            this.dialogVisible = false
+          }).catch(() => {
             this.$message({
               type: 'info',
               message: '已取消下载'
-            });
-          });
-        });
-      },
-      addDataSave: function () {
-        this.dialogFormVisible = false;
-        this.$axios.post(PREFIX + 'book/book.do', {
-          companyId: COMPANYID,
-          bookName: this.addname,
-          category: this.addcategory,
-          quantity: parseInt(this.addquantity),
-          version: this.addversion
-        }).then((res) => {
-          if (res.data.code == 1) {
-            this.$message({
-              type: 'success',
-              message: '添加成功!'
-            });
-          window.location.reload();
-          } else {
-            this.$message({
-              type: 'warn',
-              message: '添加失败!'
-            });
-          }
-        }).catch(function (error) {
-          alert(error);
-        })
-      },
-      handleSizeChange: function (size) {
-        this.pagesize = size;
-      },
-      handleChange(val) {
-        console.log(val)
-      },
-      toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row)
+            })
           })
-        } else {
-          this.$refs.multipleTable.clearSelection()
-        }
-      },
-      handleSelectionChange(val) {
-        for (var i = 0; i < val.length; i++) {
-          this.multipleSelection[i] = val[i].bookId;
-        }
-      },
-      handleRemove(file, fileList) {
-        console.log(file, fileList)
-      },
-      handlePreview(file) {
-        console.log(file)
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${file.name}？`)
-      },
-      deleteBook(index) {
-          let book = new Object;
-          book.companyId = COMPANYID;
-          book.bookId = index;
-          this.$axios.post(PREFIX + '/book/delBook.do',book).then((response) => {
-            if (response.data.code == 1) {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              for (let i = 0; i < this.tableData.length; i++) {
-                this.tableData.forEach((v, i) => {
-                  if (v.num === index) {
-                    this.tableData.splice(i, 1);
-                  }
-                });
-              }
-            }
-            })
-        },
-      //下载Excel模板(success)
-      uploadExcelTemplate() {
-        this.$confirm('是否下载模板？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warn',
-        }).then(() => {
-          this.$axios.post(PREFIX+'download.do?name=book.xlsx', {
-          },{responseType:"arraybuffer"})
-            .then((response) => {
-              let blob = new Blob([response.data], {type: "application/vnd.ms-excel"});
-              var link = document.createElement('a');
-              link.href = window.URL.createObjectURL(blob);
-              link.download = "导入数据模板.xlsx";
-              link.click();
-              console.log('下载模板成功');
-            })
-            .catch((error) => {
-              alert(error);
-            })
-        }).catch(() => {
+      })
+    },
+    addDataSave: function () {
+      this.dialogFormVisible = false
+      this.$axios.post(PREFIX + 'book/book.do', {
+        companyId: COMPANYID,
+        bookName: this.addname,
+        category: this.addcategory,
+        quantity: parseInt(this.addquantity),
+        version: this.addversion
+      }).then((res) => {
+        if (res.data.code == 1) {
           this.$message({
-            type: 'info',
-            message: '已取消下载'
-          });
-        });
-      },
-      filterBook() {
-        let params = new URLSearchParams();
-        params.append('currentPage', this.currentPage);
-        params.append('size', this.pagesize);
-        let book = new Object;
-        if (this.filterBookId != '') {
-          book.bookId = this.filterBookId;
+            type: 'success',
+            message: '添加成功!'
+          })
+          window.location.reload()
+        } else {
+          this.$message({
+            type: 'error',
+            message: '添加失败!'
+          })
         }
-        book.companyId = COMPANYID;
-        if (this.filterBookName != '') {
-          book.bookName = this.filterBookName;
-        }
-        if (this.filterCategory != '') {
-          book.category = this.filterCategory;
-        }
-        if (this.filterVersion != '') {
-          book.version = this.filterVersion;
-        }
-        if (this.quantity != '') {
-          book.quantity = parseInt(this.filterQuantity);
-        }
-        this.$axios.post(PREFIX + 'book/filter.do?'+ params.toString(),book)
-          .then((response) => {
-          this.tableData = response.data.object.data;
-          this.bookCount = response.data.object.recordSize;
+      }).catch(function (error) {
+        alert(error)
+      })
+    },
+    handleSizeChange: function (size) {
+      this.pagesize = size
+    },
+    handleChange (val) {
+      console.log(val)
+    },
+    toggleSelection (rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
         })
+      } else {
+        this.$refs.multipleTable.clearSelection()
       }
+    },
+    handleSelectionChange (val) {
+      for (var i = 0; i < val.length; i++) {
+        this.multipleSelection[i] = val[i].bookId
+      }
+    },
+    handleRemove (file, fileList) {
+      console.log(file, fileList)
+    },
+    handlePreview (file) {
+      console.log(file)
+    },
+    handleExceed (files, fileList) {
+      this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
+    },
+    beforeRemove (file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`)
+    },
+    deleteBook (index) {
+      let book = new Object()
+      book.companyId = COMPANYID
+      book.bookId = index
+      this.$axios.post(PREFIX + '/book/delBook.do', book).then((response) => {
+        if (response.data.code == 1) {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.tableData.forEach((v, i) => {
+              if (v.num === index) {
+                this.tableData.splice(i, 1)
+              }
+            })
+          }
+        }
+      })
+    },
+    // 下载Excel模板(success)
+    uploadExcelTemplate () {
+      this.$confirm('是否下载模板？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warn'
+      }).then(() => {
+        this.$axios.post(PREFIX + 'download.do?name=book.xlsx', {
+        }, {responseType: 'arraybuffer'})
+          .then((response) => {
+            let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+            var link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = '导入数据模板.xlsx'
+            link.click()
+            console.log('下载模板成功')
+          })
+          .catch((error) => {
+            alert(error)
+          })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消下载'
+        })
+      })
+    },
+    filterBook () {
+      let params = new URLSearchParams()
+      params.append('currentPage', this.currentPage)
+      params.append('size', this.pagesize)
+      let book = new Object()
+      if (this.filterBookId != '') {
+        book.bookId = this.filterBookId
+      }
+      book.companyId = COMPANYID
+      if (this.filterBookName != '') {
+        book.bookName = this.filterBookName
+      }
+      if (this.filterCategory != '') {
+        book.category = this.filterCategory
+      }
+      if (this.filterVersion != '') {
+        book.version = this.filterVersion
+      }
+      if (this.quantity != '') {
+        book.quantity = parseInt(this.filterQuantity)
+      }
+      this.$axios.post(PREFIX + 'book/filter.do?' + params.toString(), book)
+        .then((response) => {
+          this.tableData = response.data.object.data
+          this.bookCount = response.data.object.recordSize
+        })
     }
   }
+}
 </script>

@@ -23,7 +23,7 @@
       <el-radio v-model="radio" label="2">成员</el-radio>
       <el-radio v-model="radio" label="1">管理员</el-radio>
       <el-button class="loginbutton" type="primary" @click="onSubmit">登陆</el-button>
-      <div class="footer">还没有账号？<router-link class="reg" to="/register">注册公司</router-link></div>
+      <div class="footer">还没有账号？<router-link class="reg" to="/register">注册</router-link></div>
   </el-card>
   </div>
 </template>

@@ -12,12 +12,6 @@
     <el-tabs v-model="activeName" class="tabsEditor" type="card">
       <el-tab-pane label="基本信息" name="first">
         <el-form>
-          <el-form-item label="公司ID*" :label-width="formLabelWidth">
-            <el-input class="increaseInput" disabled="disabled" v-model="companyId"></el-input>
-          </el-form-item>
-          <el-form-item label="图书编号" :label-width="formLabelWidth">
-            <el-input class="increaseInput" placeholder="图书编号" disabled="disabled" v-model="bookId"></el-input>
-          </el-form-item>
           <el-form-item label="图书名" :label-width="formLabelWidth">
             <el-input class="increaseInput" placeholder="登录邮箱" v-model="bookName"></el-input>
           </el-form-item>

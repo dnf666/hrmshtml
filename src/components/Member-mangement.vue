@@ -101,13 +101,10 @@
       <el-button
         class="filterDown"
         @click="show3 = !show3"
-      >过滤
+      >筛选
       </el-button>
 
       <!-- 成员状态 -->
-      <span id='state'>
-        ({{memberCount}} 成员)
-      </span>
       <!-- 根据输入过滤信息 -->
       <div style="margin-top: 10px;">
         <el-collapse-transition>
@@ -118,8 +115,8 @@
               <span>邮箱：<el-input class="filter" v-model="filterEmail"></el-input></span>
               <br>
               <span>性别：
-                <el-radio class='sex' v-model="radio" label="0">男</el-radio>
-                <el-radio class='sex' v-model="radio" label="1">女</el-radio>
+                <el-radio class='sex' v-model="filterRadio" label="男">男</el-radio>
+                <el-radio class='sex' v-model="filterRadio" label="女">女</el-radio>
               </span>
               <span>电话：<el-input class="filter" v-model="filterPhoneNumber"></el-input></span>
               <span>专业：<el-input class="filter" v-model="filterProfession"></el-input></span>
@@ -127,7 +124,7 @@
               <span>部门：<el-input class="filter" v-model="filterDepartment"></el-input></span>
               <span>年级：<el-input class="filter" v-model="filterGrade"></el-input></span>
               <span>签约：<el-input class="filter" v-model="filterWhereAbout"></el-input></span>
-              <el-button class="primary" type="primary" @click="getFilterMemberInfo">过滤</el-button>
+              <el-button class="primary" type="primary" @click="getFilterMemberInfo">筛选</el-button>
             </div>
           </div>
         </el-collapse-transition>
@@ -163,7 +160,7 @@
                 </el-dropdown-item>
                 <el-dropdown-item>
                   <span
-                    @click="deleteMember(scope.row.num)">
+                    @click="deleteMember(scope.row.num,scope.row.email)">
                   删除成员
                   </span>
                 </el-dropdown-item>
@@ -183,59 +180,48 @@
             </el-dropdown>
           </template>
         </el-table-column>
+        <el-table-column type="expand">
+          <template slot-scope="props">
+            <el-form label-position="right" inline class="demo-table-expand">
+              <el-form-item label="电话">
+                <span>{{ props.row.phoneNumber }}</span>
+              </el-form-item><br>
+              <el-form-item label="性别">
+                <span>{{ props.row.sex }}</span>
+              </el-form-item><br>
+              <el-form-item label="专业">
+                <span>{{ props.row.profession }}</span>
+              </el-form-item><br>
+              <el-form-item label="年级">
+                <span>{{ props.row.grade }}</span>
+              </el-form-item><br>
+              <el-form-item label="部门">
+                <span>{{ props.row.department}}</span>
+              </el-form-item><br>
+            </el-form>
+          </template>
+        </el-table-column>
         <!-- 成员信息 -->
         <el-table-column
           class="memberInfo"
           id="studentId"
           label="学号"
-          width="130"
+          width="200"
+          align="center"
           :show-overflow-tooltip="true">
           <template slot-scope="scope">{{ scope.row.num }}</template>
         </el-table-column>
         <el-table-column
           prop="name"
           label="姓名"
-          width="80"
-          align="center"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="phoneNumber"
-          label="电话"
-          width="170"
+          width="200"
           align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
         <el-table-column
           prop="email"
           label="邮箱"
-          width="170"
-          align="center"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="sex"
-          label="性别"
-          align="center"
-          width="50">
-        </el-table-column>
-        <el-table-column
-          prop="profession"
-          label="专业"
-          align="center"
-          width="130"
-          :show-overflow-tooltip="true">
-        </el-table-column>
-        <el-table-column
-          prop="grade"
-          label="年级"
-          align="center"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          prop="department"
-          label="部门"
-          width="100"
+          width="200"
           align="center"
           :show-overflow-tooltip="true">
         </el-table-column>
@@ -445,98 +431,301 @@
   }
 </style>
 <script>
-  import FileSaver from 'file-saver'
-  import XLSX from 'xlsx'
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
 
-  var COMPANYID = window.sessionStorage.getItem('companyId')
-  const PREFIX = 'http://localhost:8081/hrms/'
-  let isnext = (that) => {
-    for (let i = 0; i < 1; i++) {
-      if (that.isnext[i] == true) {
-        return
-      }
-    }
-    if (that.gre == false) {
-      that.isdisabledFn = true
+var COMPANYID = window.sessionStorage.getItem('companyId')
+const PREFIX = 'http://localhost:8081/hrms/'
+let isnext = (that) => {
+  for (let i = 0; i < 1; i++) {
+    if (that.isnext[i] == true) {
       return
-    } else {
-      that.isdisabledFn = false
     }
   }
-  export default {
-    data () {
-      return {
-        isdisabledFn: true,
-        companyName: '',
-        memberCount: 0,
-        show3: false,
-        currentPage: 1,
-        pagesize: 10,
-        tableData: [{
-          companyId: '',
-          num: '',
-          name: '',
-          email: '',
-          sex: '',
-          profession: '',
-          department: '',
-          grade: '',
-          phoneNumber: '',
-          whereAbout: ''
-        }],
-        emailTips: '',
-        studentIdTips: '',
-        permission: '',
-        value: '',
-        isnext: [false],
-        multipleSelection: [],
-        dialogFormVisible: false,
-        dialogVisible: false,
-        isDisabled: false,
-        formLabelWidth: '140px',
-        radio: '0',
-        checked: true,
-        filterCompanyId: '',
-        filterNum: '',
-        filterName: '',
-        filterEmail: '',
-        filterPhoneNumber: '',
-        filterProfession: '',
-        filterDepartment: '',
-        filterGrade: '',
-        filterWhereAbout: '',
-        newCompanyId: '',
-        newNum: '',
-        newName: '',
-        newSex: '',
-        newEmail: '',
-        newProfession: '',
-        newDepartment: '',
-        newGrade: '',
-        newPhoneNumber: '',
-        newWhereAbout: '',
-        file: '',
-        excelPath: ''
+  if (that.gre == false) {
+    that.isdisabledFn = true
+  } else {
+    that.isdisabledFn = false
+  }
+}
+export default {
+  data () {
+    return {
+      isdisabledFn: true,
+      companyName: '',
+      memberCount: 0,
+      show3: false,
+      currentPage: 1,
+      pagesize: 10,
+      tableData: [{
+        companyId: '',
+        num: '',
+        name: '',
+        email: '',
+        sex: '',
+        profession: '',
+        department: '',
+        grade: '',
+        phoneNumber: '',
+        whereAbout: ''
+      }],
+      emailTips: '',
+      studentIdTips: '',
+      permission: '',
+      value: '',
+      isnext: [false],
+      multipleSelection: [],
+      emailSelection: [],
+      dialogFormVisible: false,
+      dialogVisible: false,
+      isDisabled: false,
+      formLabelWidth: '140px',
+      radio: '0',
+      filterRadio: null,
+      checked: true,
+      filterCompanyId: '',
+      filterNum: '',
+      filterName: '',
+      filterEmail: '',
+      filterPhoneNumber: '',
+      filterProfession: '',
+      filterDepartment: '',
+      filterGrade: '',
+      filterWhereAbout: '',
+      newCompanyId: '',
+      newNum: '',
+      newName: '',
+      newSex: '',
+      newEmail: '',
+      newProfession: '',
+      newDepartment: '',
+      newGrade: '',
+      newPhoneNumber: '',
+      newWhereAbout: '',
+      file: '',
+      excelPath: ''
+    }
+  },
+  // 获取全部成员信息(success)
+  created: function () {
+    this.permission = window.sessionStorage.getItem('permission')
+    this.$axios.get(PREFIX + '/company/company.do', {
+      params: {
+        email: COMPANYID
       }
-    },
-    //获取全部成员信息(success)
-    created: function () {
-      this.permission = window.sessionStorage.getItem('permission')
-      this.$axios.get(PREFIX + '/company/company.do', {
-        params: {
-          email: COMPANYID
-        }
+    })
+      .then((response) => {
+        this.companyName = response.data.object.name
       })
-        .then((response) => {
-          this.companyName = response.data.object.name
-        })
       // 得到当前页面成员列表
+    let params = new URLSearchParams()
+    params.append('page', this.currentPage)
+    params.append('size', this.pagesize)
+    this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
+      companyId: COMPANYID
+    })
+      .then((response) => {
+        this.tableData = response.data.object.data
+        this.memberCount = response.data.object.recordSize
+      })
+      .catch((error) => {
+        alert(error)
+      })
+  },
+  methods: {
+    // 获取当前页数及当前页面数据
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
       let params = new URLSearchParams()
       params.append('page', this.currentPage)
       params.append('size', this.pagesize)
       this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
         companyId: COMPANYID
       })
+        .then((response) => {
+          console.log('展示第' + this.currentPage + '页成员信息成功')
+          this.tableData = response.data.object.data
+          this.memberCount = response.data.object.recordSize
+        })
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    setPermission (num, permission) {
+      this.$axios.post(PREFIX + '/manage/permission.do', {
+        companyId: COMPANYID,
+        email: num,
+        permission: permission
+      })
+        .then((response) => {
+          if (response.data.status == 0) {
+            this.$message({
+              type: 'success',
+              message: response.data.message
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: response.data.message
+            })
+          }
+        }
+        )
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    toggleSelection (rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row)
+        })
+      } else {
+        this.$refs.multipleTable.clearSelection()
+      }
+    },
+    handleSizeChange: function (size) {
+      this.pagesize = size
+    },
+    inputEmail (e) {
+      this.isdisabledFn = true
+      this.isnext[0] = true
+
+      function ckMail (str) {
+        var myreg = /^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/
+        return myreg.test(str)
+      }
+
+      if (this.newEmail == ' ') {
+        this.emailTips = ''
+        return
+      }
+      if (ckMail(e)) {
+        this.isnext[0] = false
+        this.emailTips = ' '
+        isnext(this)
+      } else {
+        this.emailTips = '您输入的邮箱格式有误'
+      }
+    },
+
+    // 获得选中的一行数据
+    handleSelectionChange (val) {
+      for (let i = 0; i < val.length; i++) {
+        this.multipleSelection[i] = val[i].num
+        this.emailSelection[i] = val[i].email
+      }
+    },
+    handleClose (done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {
+        })
+    },
+    // 删除单个成员信息()
+    deleteMember (num,email) {
+      // todo 违反了rest原则。 但是现在又传不过去
+      this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
+        num: num,
+        email:email
+      })
+        .then((response) => {
+          if (response.data.code == 1) {
+            for (let i = 0; i < this.tableData.length; i++) {
+              if (this.tableData[i].num === num) {
+                this.tableData.splice(i, 1)
+              }
+            }
+            this.$message({
+              type: 'success',
+              message: '删除成功'
+            })
+            this.memberCount--
+          } else {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          }
+        }
+        )
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    // 删除选中行数据(success)
+    delData () {
+      this.$confirm('是否删除当前选中成员？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // todo 违反了rest原则。 但是现在又传不过去
+        this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
+          num: this.multipleSelection.toString(),
+          email:this.emailSelection.toString()
+        }).then((response) => {
+          window.location.reload()
+        }
+        )
+          .catch((error) => {
+            alert(error)
+          })
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '已取消删除'
+        })
+      })
+    },
+    // 添加单个成员信息(success)
+    addMember () {
+      this.dialogFormVisible = false
+      if (this.radio == 0) {
+        this.newSex = '男'
+      } else {
+        this.newSex = '女'
+      }
+      // 提交请求
+      this.$axios.post(PREFIX + '/member/member.do', {
+        companyId: COMPANYID,
+        num: this.newNum,
+        name: this.newName,
+        sex: this.newSex,
+        email: this.newEmail,
+        grade: this.newGrade,
+        department: this.newDepartment,
+        phoneNumber: this.newPhoneNumber,
+        profession: this.newProfession,
+        whereAbout: this.newWhereAbout
+      }).then((response) => {
+        window.location.reload()
+      })
+        .catch((error) => {
+          alert(error)
+        })
+    },
+    // 根据条件查找成员信息(success)
+    getFilterMemberInfo () {
+      let params = new URLSearchParams()
+      params.append('page', this.currentPage)
+      params.append('size', this.pagesize)
+
+      this.$axios.post(PREFIX + '/member/filter.do?' + params.toString()
+        , {
+          companyId: COMPANYID,
+          num: this.filterNum,
+          name: this.filterName,
+          sex: this.filterRadio,
+          email: this.filterEmail,
+          profession: this.filterProfession,
+          department: this.filterDepartment,
+          grade: this.filterGrade,
+          phoneNumber: this.filterPhoneNumber,
+          whereAbout: this.filterWhereAbout
+        })
         .then((response) => {
           this.tableData = response.data.object.data
           this.memberCount = response.data.object.recordSize
@@ -545,289 +734,99 @@
           alert(error)
         })
     },
-    methods: {
-      // 获取当前页数及当前页面数据
-      handleCurrentChange (currentPage) {
-        this.currentPage = currentPage
-        let params = new URLSearchParams()
-        params.append('page', this.currentPage)
-        params.append('size', this.pagesize)
-        this.$axios.post(PREFIX + '/member/filter.do?' + params.toString(), {
-          companyId: COMPANYID
-        })
-          .then((response) => {
-            console.log('展示第' + this.currentPage + '页成员信息成功')
-            this.tableData = response.data.object.data
-            this.memberCount = response.data.object.recordSize
-          })
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      setPermission (num, permission) {
-        this.$axios.post(PREFIX + '/manage/permission.do', {
-          companyId: COMPANYID,
-          email: num,
-          permission: permission
-        })
-          .then((response) => {
-              if (response.data.status == 0) {
-                this.$message({
-                  type: 'success',
-                  message: response.data.message
-                })
-              } else {
-                this.$message({
-                  type: 'warning',
-                  message: response.data.message
-                })
-
-              }
-            }
-          )
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      toggleSelection (rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row)
-          })
-        } else {
-          this.$refs.multipleTable.clearSelection()
-        }
-      },
-      handleSizeChange: function (size) {
-        this.pagesize = size
-      },
-      inputEmail (e) {
-        this.isdisabledFn = true
-        this.isnext[0] = true
-
-        function ckMail (str) {
-          var myreg = /^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/
-          return myreg.test(str)
-        }
-
-        if (this.newEmail == ' ') {
-          this.emailTips = ''
-          return
-        }
-        if (ckMail(e)) {
-          this.isnext[0] = false
-          this.emailTips = ' '
-          isnext(this)
-        } else {
-          this.emailTips = '您输入的邮箱格式有误'
-        }
-      },
-
-      //获得选中的一行数据
-      handleSelectionChange (val) {
-        for (let i = 0; i < val.length; i++) {
-          this.multipleSelection[i] = val[i].num
-        }
-      },
-      handleClose (done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done()
-          })
-          .catch(_ => {
-          })
-      },
-      //删除单个成员信息()
-      deleteMember (num) {
-        //todo 违反了rest原则。 但是现在又传不过去
-        this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
-          num: num
-        })
-          .then((response) => {
-              if (response.data.code == 1) {
-                for (let i = 0; i < this.tableData.length; i++) {
-                  if (this.tableData[i].num === num) {
-                    this.tableData.splice(i, 1)
-                  }
-                }
-                this.memberCount--
-              } else {
-                this.$message({
-                  type: 'info',
-                  message: '已取消删除'
-                })
-              }
-            }
-          )
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      //删除选中行数据(success)
-      delData () {
-        this.$confirm('是否删除当前选中成员？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }).then(() => {
-          // todo 违反了rest原则。 但是现在又传不过去
-          this.$axios.post(PREFIX + '/member/delMember.do?companyId=' + COMPANYID, {
-            num: this.multipleSelection.toString()
-          }).then((response) => {
-              window.location.reload()
-            }
-          )
-            .catch((error) => {
-              alert(error)
+    // 得到文件内容
+    getExcel (event) {
+      this.file = event.target.files[0]
+      console.log(this.file)
+    },
+    // 上传Excel表到数据库(success)
+    uploadExcel (event) {
+      // 阻止元素发生默认行为
+      event.preventDefault()
+      let formData = new FormData()
+      formData.append('file', this.file)
+      formData.append('companyId', COMPANYID)
+      this.$axios.post(PREFIX + 'member/excel.do', formData)
+        .then((response) => {
+          this.dialogVisible = false
+          if (response.data.code == 1) {
+            this.$message({
+              type: 'success',
+              message: response.data.msg
             })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
+            window.location.reload()
+          } else {
+            this.$message({
+              type: 'error',
+              message: response.data.msg
+            })
+          }
+        }).catch((error) => {
+          alert(error)
         })
-
-      },
-      //添加单个成员信息(success)
-      addMember () {
-        this.dialogFormVisible = false
-        if (this.radio == 0) {
-          this.newSex = '男'
-        } else {
-          this.newSex = '女'
-        }
-        //提交请求
-        this.$axios.post(PREFIX + '/member/member.do', {
+    },
+    // 下载当前页面的数据到Excel表(success)
+    downloadExcel () {
+      this.$confirm('是否下载当前数据？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(() => {
+        this.$axios.post(PREFIX + 'member/createExcel.do', {
           companyId: COMPANYID,
-          num: this.newNum,
-          name: this.newName,
-          sex: this.newSex,
-          email: this.newEmail,
-          grade: this.newGrade,
-          department: this.newDepartment,
-          phoneNumber: this.newPhoneNumber,
-          profession: this.newProfession,
-          whereAbout: this.newWhereAbout
-        }).then((response) => {
-          window.location.reload()
-        })
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      //根据条件查找成员信息(success)
-      getFilterMemberInfo () {
-        let params = new URLSearchParams()
-        params.append('page', this.currentPage)
-        params.append('size', this.pagesize)
-        if (this.radio == 0) {
-          this.sex = '男'
-        } else {
-          this.sex = '女'
-        }
-        this.$axios.post(PREFIX + '/member/filter.do?' + params.toString()
-          , {
-            companyId: COMPANYID,
-            num: this.filterNum,
-            name: this.filterName,
-            sex: this.sex,
-            email: this.filterEmail,
-            profession: this.filterProfession,
-            department: this.filterDepartment,
-            grade: this.filterGrade,
-            phoneNumber: this.filterPhoneNumber,
-            whereAbout: this.filterWhereAbout
-          })
+          num: this.filterNum,
+          name: this.filterName,
+          sex: this.sex,
+          email: this.filterEmail,
+          profession: this.filterProfession,
+          department: this.filterDepartment,
+          grade: this.filterGrade,
+          phoneNumber: this.filterPhoneNumber,
+          whereAbout: this.filterWhereAbout
+        }, {responseType: 'arraybuffer'})
           .then((response) => {
-            this.tableData = response.data.object.data
-            this.memberCount = response.data.object.recordSize
-          })
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      //得到文件内容
-      getExcel (event) {
-        this.file = event.target.files[0]
-        console.log(this.file)
-      },
-      //上传Excel表到数据库(success)
-      uploadExcel (event) {
-        //阻止元素发生默认行为
-        event.preventDefault()
-        let formData = new FormData()
-        formData.append('file', this.file)
-        formData.append('companyId', COMPANYID)
-        this.$axios.post(PREFIX + 'member/excel.do', formData)
-          .then((response) => {
+            let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+            var link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = COMPANYID + 'member.xls'
+            link.click()
             this.dialogVisible = false
-          })
-          .catch((error) => {
-            alert(error)
-          })
-      },
-      //下载当前页面的数据到Excel表(success)
-      downloadExcel () {
-        this.$confirm('是否下载当前数据？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info',
-        }).then(() => {
-          this.$axios.post(PREFIX + 'member/createExcel.do', {
-            companyId: COMPANYID,
-            num: this.filterNum,
-            name: this.filterName,
-            sex: this.sex,
-            email: this.filterEmail,
-            profession: this.filterProfession,
-            department: this.filterDepartment,
-            grade: this.filterGrade,
-            phoneNumber: this.filterPhoneNumber,
-            whereAbout: this.filterWhereAbout
-          }, {responseType: 'arraybuffer'})
-            .then((response) => {
-              let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
-              var link = document.createElement('a')
-              link.href = window.URL.createObjectURL(blob)
-              link.download = COMPANYID + 'member.xls'
-              link.click()
-              this.dialogVisible = false
-            }).catch(() => {
+          }).catch(() => {
             this.$message({
               type: 'info',
               message: '已取消下载'
             })
           })
-        })
-      },
+      })
+    },
 
-      //下载Excel模板(success)
-      uploadExcelTemplate () {
-        this.$confirm('是否下载模板？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info',
-        }).then(() => {
-          this.$axios.post(PREFIX + 'download.do?name=member.xlsx', {}, {responseType: 'arraybuffer'})
-            .then((response) => {
-              console.log(response)
-              let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
-              var link = document.createElement('a')
-              link.href = window.URL.createObjectURL(blob)
-              link.download = 'member.xlsx'
-              link.click()
-              console.log('下载模板成功')
-            })
-            .catch((error) => {
-              alert(error)
-            })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消下载'
+    // 下载Excel模板(success)
+    uploadExcelTemplate () {
+      this.$confirm('是否下载模板？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info'
+      }).then(() => {
+        this.$axios.post(PREFIX + 'download.do?name=member.xlsx', {}, {responseType: 'arraybuffer'})
+          .then((response) => {
+            console.log(response)
+            let blob = new Blob([response.data], {type: 'application/vnd.ms-excel'})
+            var link = document.createElement('a')
+            link.href = window.URL.createObjectURL(blob)
+            link.download = 'member.xlsx'
+            link.click()
+            console.log('下载模板成功')
           })
+          .catch((error) => {
+            alert(error)
+          })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消下载'
         })
-      }
+      })
     }
   }
+}
 </script>

@@ -7,7 +7,7 @@
       <span class="cname">{{this.companyName}}</span>
 <br/>
       <a title="点击修改公司简介"  @click="dialogVisible = true">
-        <span>公司简介:</span><span>{{ this.companyOutline }}</span>
+        <span>简介:</span><span>{{ this.companyOutline }}</span>
       </a>
       <el-dialog
         title="修改公司简介"
@@ -29,7 +29,7 @@
   <div class="mainInfo">
     <!-- 公司成员 -->
     <div class="companyMember">
-      公司成员
+      成员数量
       <div class="companyMember-child">
         <i class="el-icon-tickets"></i>
         <span ref='member'>{{ memberCounting }}</span>/1000人
